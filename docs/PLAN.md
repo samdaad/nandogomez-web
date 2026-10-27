@@ -477,8 +477,10 @@ El e2e no depende de `vars.PUBLIC_GA_ID`: Playwright hace su propio build con `G
 - «Agenda una llamada» (hero) y «Escríbeme» (contacto): nunca coinciden en pantalla.
 - «Guardar selección» del panel: el banner se oculta mientras el panel está abierto.
 
+**Decisiones de Nando en la puerta 1 (27/10/2026):**
+- El botón del hero pasa de «Agenda una llamada» a **«Hablemos»** (sigue enlazando a `#contacto`). Entra en P8.
+- Clientes que pueden aparecer con su nombre (los únicos): **Deor Consultores, OK Humedades, Learn2Be, Vil·la Minerva, MiquelPares SL, RG Compact**. Ortografía exacta de cada nombre a confirmar con Nando antes de P9. Cómo se presentan (en el bloque de Digital Twofers o en una franja propia de clientes) se decide en P9 con Nando; ningún otro nombre de cliente puede aparecer en la web.
+
 **Otras observaciones (no bloquean):**
-- «Agenda una llamada» lleva a `#contacto`, donde solo hay correo y LinkedIn. Hay dos opciones: cambiar el texto a «Hablemos», o añadir un enlace de agenda. Esto último implicaría un tercero más en la CSP y en la privacidad.
-- Confirmar que OK Humedades, RG Compact y DEOR Consultores aceptan aparecer con su nombre.
 - Incorporar `--border-control` y `--overlay` a `tokens.json`.
 - El pie de Aviso legal y de Privacidad no tenía «Configurar cookies»; se unifica (A8).
