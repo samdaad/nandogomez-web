@@ -1,7 +1,7 @@
 // Acceso a Node para adv-p0.test.ts. Va en .mjs porque P0 no instala @types/node
 // y tsconfig incluye **/*: un .ts que importe node:* rompe `npm run typecheck`.
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -24,8 +24,11 @@ const tmpDirs = [];
 export function sandbox() {
   const dir = mkdtempSync(join(tmpdir(), 'adv-p0-'));
   tmpDirs.push(dir);
-  for (const p of ['astro.config.mjs', 'tsconfig.json', 'package.json', 'src']) {
-    cpSync(join(ROOT, p), join(dir, p), { recursive: true });
+  // Copia todo salvo dependencias y salidas, para que los pasos siguientes
+  // (public/, scripts/check-release.mjs, etc.) también entren en el build.
+  const skip = new Set(['node_modules', '.git', 'dist', 'dist-e2e', '.astro', 'coverage', 'test-results', 'playwright-report']);
+  for (const p of readdirSync(ROOT)) {
+    if (!skip.has(p)) cpSync(join(ROOT, p), join(dir, p), { recursive: true });
   }
   symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'), 'dir');
   return dir;

@@ -1,6 +1,8 @@
 // Tests del adversario para P0 (bootstrap). Regresión: no se modifican ni se borran.
 // Cubren lo que P0 promete en docs/PLAN.md: §8 P0, §2 A1, §3 (config), §9.1 (CI) y
 // la tabla «Versiones fijadas exactas».
+// Son compatibles con P1–P11: comprueban lo que P0 fija y lo que debe seguir siendo cierto,
+// no una lista cerrada (los pasos siguientes añaden paquetes, scripts, integraciones y exports).
 import { afterAll, describe, expect, it } from 'vitest';
 import { cleanup, importFromRoot, npmRun, read, readIn, sandbox, writeIn } from './adv-p0.helpers.mjs';
 
@@ -22,7 +24,8 @@ type Lock = {
 const plan = read('docs/PLAN.md');
 const pkg = readJson<Pkg>('package.json');
 const lock = readJson<Lock>('package-lock.json');
-const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
+const allDeps: Record<string, string> = { ...pkg.dependencies, ...pkg.devDependencies };
+const P0_DEPS = ['@astrojs/check', 'astro', 'typescript', 'vitest'] as const;
 
 // Tabla de versiones de PLAN.md: | `nombre` | versión | nota |
 function planVersions(): Map<string, string> {
@@ -35,21 +38,26 @@ function planVersions(): Map<string, string> {
 }
 
 describe('P0 · package.json', () => {
-  it('declara exactamente los paquetes de P0 y ninguno más', () => {
-    expect(Object.keys(allDeps).sort()).toEqual(['@astrojs/check', 'astro', 'typescript', 'vitest']);
+  it('los 4 paquetes de P0 están con su versión exacta del plan', () => {
+    const table = planVersions();
+    for (const name of P0_DEPS) {
+      expect(allDeps[name], name).toBeDefined();
+      expect(allDeps[name], `${name} frente a PLAN.md`).toBe(table.get(name));
+    }
   });
 
-  it('todas las versiones son exactas (sin ^, ~, *, rangos, tags ni URLs)', () => {
+  it('TODA dependencia (dependencies y devDependencies) usa versión exacta (sin ^, ~, *, rangos, tags ni URLs)', () => {
     for (const [name, v] of Object.entries(allDeps)) {
       expect(v, name).toMatch(/^\d+\.\d+\.\d+$/);
     }
   });
 
-  it('las versiones coinciden con la tabla «Versiones fijadas exactas» del plan', () => {
+  it('todo paquete que figure en la tabla del plan usa exactamente esa versión', () => {
     const table = planVersions();
     expect(table.size).toBeGreaterThanOrEqual(11);
     for (const [name, v] of Object.entries(allDeps)) {
-      expect(table.get(name), `${name} en PLAN.md`).toBe(v);
+      const planned = table.get(name);
+      if (planned !== undefined) expect(v, `${name} frente a PLAN.md`).toBe(planned);
     }
   });
 
@@ -57,14 +65,14 @@ describe('P0 · package.json', () => {
     expect(allDeps['typescript']).toMatch(/^6\./);
   });
 
-  it('scripts de P0 exactos', () => {
-    expect(pkg.scripts).toEqual({
-      dev: 'astro dev',
-      build: 'astro build',
-      preview: 'astro preview',
-      typecheck: 'astro check --minimumFailingSeverity warning',
-      test: 'vitest run',
-    });
+  it('los scripts de P0 existen con su valor (se permiten scripts adicionales)', () => {
+    const sc = pkg.scripts ?? {};
+    expect(sc['dev']).toBe('astro dev');
+    expect(sc['preview']).toBe('astro preview');
+    expect(sc['typecheck']).toBe('astro check --minimumFailingSeverity warning');
+    // P4 encadena check-release (§4.5) y P5 añade --coverage (§8): se exige el prefijo de P0.
+    expect(sc['build']).toMatch(/^astro build(?: && node scripts\/check-release\.mjs)?$/);
+    expect(sc['test']).toMatch(/^vitest run(?: --coverage)?$/);
   });
 
   it('es un paquete privado ESM (no publicable por accidente)', () => {
@@ -96,9 +104,10 @@ describe('P0 · package-lock.json (cadena de suministro)', () => {
     expect(bad).toEqual([]);
   });
 
-  it('hay una sola copia de vite (vitest y astro comparten la misma)', () => {
-    const vites = Object.keys(lock.packages).filter((k) => /(^|\/)node_modules\/vite$/.test(k));
-    expect(vites).toEqual(['node_modules/vite']);
+  it('astro y vitest comparten la misma vite (sin copias anidadas propias)', () => {
+    expect(lock.packages['node_modules/vite']?.version).toBeDefined();
+    expect(lock.packages['node_modules/astro/node_modules/vite']).toBeUndefined();
+    expect(lock.packages['node_modules/vitest/node_modules/vite']).toBeUndefined();
   });
 });
 
@@ -119,14 +128,13 @@ describe('P0 · Node', () => {
 });
 
 describe('P0 · configuración', () => {
-  it('astro.config.mjs cumple §3 y no trae sitemap todavía', async () => {
+  it('astro.config.mjs cumple §3 (las integraciones, p. ej. sitemap en P10, se permiten)', async () => {
     const mod = (await importFromRoot('astro.config.mjs')) as { default: Record<string, unknown> };
     const c = mod.default as {
       site?: string;
       trailingSlash?: string;
       build?: { format?: string; inlineStylesheets?: string };
       vite?: { build?: { assetsInlineLimit?: number } };
-      integrations?: unknown[];
       output?: string;
     };
     expect(c.site).toBe('https://nandogomez.com');
@@ -134,7 +142,6 @@ describe('P0 · configuración', () => {
     expect(c.build?.format).toBe('file');
     expect(c.build?.inlineStylesheets).toBe('never');
     expect(c.vite?.build?.assetsInlineLimit).toBe(0);
-    expect(c.integrations ?? []).toHaveLength(0);
     expect(c.output ?? 'static').toBe('static');
   });
 
@@ -152,10 +159,11 @@ describe('P0 · configuración', () => {
     }
   });
 
-  it('vitest solo recoge tests/unit (los de dist no deben correr antes del build)', async () => {
-    const mod = (await importFromRoot('vitest.config.ts')) as { default: { test?: { include?: string[]; environment?: string } } };
-    expect(mod.default.test?.include).toEqual(['tests/unit/**/*.test.ts']);
-    expect(mod.default.test?.environment).toBe('node');
+  it('vitest recoge tests/unit y no tests/dist (esos van con test:dist, tras el build)', async () => {
+    const mod = (await importFromRoot('vitest.config.ts')) as { default: { test?: { include?: string[] } } };
+    const inc = mod.default.test?.include ?? [];
+    expect(inc).toContain('tests/unit/**/*.test.ts');
+    expect(inc.some((g) => g.includes('tests/dist') || g.startsWith('**') || g.startsWith('tests/**'))).toBe(false);
   });
 });
 
@@ -190,9 +198,9 @@ describe('P0 · CI', () => {
 });
 
 describe('P0 · código', () => {
-  it('site.ts solo exporta SITE_URL y EMAIL en P0, y SITE_URL es un origen https sin barra', async () => {
+  it('site.ts exporta SITE_URL y EMAIL, y SITE_URL es un origen https sin barra', async () => {
     const mod = (await import('../../src/lib/site')) as Record<string, unknown>;
-    expect(Object.keys(mod).sort()).toEqual(['EMAIL', 'SITE_URL']);
+    expect(Object.keys(mod)).toEqual(expect.arrayContaining(['EMAIL', 'SITE_URL']));
     const u = new URL(String(mod['SITE_URL']));
     expect(u.origin).toBe(mod['SITE_URL']);
     expect(u.protocol).toBe('https:');
