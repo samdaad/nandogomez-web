@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Aviso de cookies — Nando Gómez</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="position: relative; width: 1440px; height: 1100px; overflow: hidden; background: #0E0F11; color: #EDEDEF; font-family: Geist, system-ui, sans-serif; font-size: 15px; line-height: 1.6">
+
+  <div aria-hidden="true" style="max-width: 1240px; margin: 0 auto; padding: 128px 24px 0; opacity: 0.35">
+    <p style="margin: 0 0 32px; font-family: 'Geist Mono', monospace; font-size: 13px; color: #A3A6AE">● CONSULTORÍA · FORMACIÓN · ASESORÍA</p>
+    <p style="margin: 0; max-width: 900px; font-weight: 600; font-size: 88px; line-height: 0.98; letter-spacing: -0.045em">Ayudo a empresas a entender, elegir y usar la tecnología sin humo.</p>
+  </div>
+
+  <sc-if value="{{ showBanner }}" hint-placeholder-val="{{ true }}">
+    <section aria-label="Aviso de cookies" style="position: absolute; left: 24px; bottom: 24px; width: 560px; box-sizing: border-box; background: #16181C; border: 1px solid #2A2D33; border-radius: 16px; padding: 28px">
+      <p style="margin: 0 0 10px; font-family: 'Geist Mono', monospace; font-size: 13px; color: #A3A6AE">/ cookies</p>
+      <p style="margin: 0 0 24px; color: #A3A6AE">Usamos una cookie propia para recordar tu elección y, solo si lo aceptas, cookies de Google Analytics para saber cómo se usa la web. Más detalle en la <a href="Cookies.dc.html" style="color: #EDEDEF">política de cookies</a>.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+        <button type="button" onClick="{{ reject }}" style="font: inherit; font-weight: 600; color: #EDEDEF; background: transparent; border: 1px solid #3A3D44; border-radius: 10px; padding: 13px 22px; cursor: pointer">Rechazar</button>
+        <button type="button" onClick="{{ accept }}" style="font: inherit; font-weight: 600; color: #EDEDEF; background: transparent; border: 1px solid #3A3D44; border-radius: 10px; padding: 13px 22px; cursor: pointer">Aceptar</button>
+        <button type="button" onClick="{{ openPanel }}" style="font: inherit; color: #A3A6AE; background: transparent; border: 0; padding: 13px 8px; text-decoration: underline; text-underline-offset: 4px; cursor: pointer">Configurar</button>
+      </div>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ showPanel }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: rgba(14, 15, 17, 0.72); display: flex; align-items: center; justify-content: center">
+      <section role="dialog" aria-modal="true" aria-labelledby="pref-title" style="width: 600px; box-sizing: border-box; background: #16181C; border: 1px solid #2A2D33; border-radius: 20px; padding: 36px">
+        <h2 id="pref-title" style="margin: 0 0 8px; font-size: 24px; font-weight: 600; letter-spacing: -0.02em">Preferencias de cookies</h2>
+        <p style="margin: 0 0 24px; color: #A3A6AE">Elige qué permites. Puedes cambiarlo cuando quieras desde el pie de la web.</p>
+
+        <div style="border-top: 1px solid #23262B; padding: 18px 0; display: flex; gap: 24px; align-items: flex-start; justify-content: space-between">
+          <div>
+            <p style="margin: 0 0 4px; font-weight: 600">Técnicas</p>
+            <p style="margin: 0; color: #A3A6AE">Guardan tu elección sobre las cookies. Son necesarias y no se pueden desactivar.</p>
+          </div>
+          <span style="flex: none; font-family: 'Geist Mono', monospace; font-size: 13px; color: #A3A6AE; padding-top: 2px">Siempre activas</span>
+        </div>
+
+        <div style="border-top: 1px solid #23262B; border-bottom: 1px solid #23262B; padding: 18px 0; display: flex; gap: 24px; align-items: flex-start; justify-content: space-between">
+          <div>
+            <p style="margin: 0 0 4px; font-weight: 600">Analítica</p>
+            <p style="margin: 0; color: #A3A6AE">Google Analytics: cuántas visitas hay y qué páginas se leen. No se usan para publicidad.</p>
+          </div>
+          <button type="button" role="switch" aria-checked="{{ analyticsAria }}" aria-label="Cookies de analítica" onClick="{{ toggle }}" style="{{ switchStyle }}">
+            <span aria-hidden="true" style="{{ knobStyle }}"></span>
+          </button>
+        </div>
+
+        <div style="margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px">
+          <button type="button" onClick="{{ reject }}" style="font: inherit; font-weight: 600; color: #EDEDEF; background: transparent; border: 1px solid #3A3D44; border-radius: 10px; padding: 13px 22px; cursor: pointer">Rechazar todo</button>
+          <button type="button" onClick="{{ accept }}" style="font: inherit; font-weight: 600; color: #EDEDEF; background: transparent; border: 1px solid #3A3D44; border-radius: 10px; padding: 13px 22px; cursor: pointer">Aceptar todo</button>
+          <button type="button" onClick="{{ save }}" style="font: inherit; font-weight: 600; color: #0E0F11; background: #C6F26B; border: 1px solid #C6F26B; border-radius: 10px; padding: 13px 22px; cursor: pointer">Guardar selección</button>
+        </div>
+      </section>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showDone }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 24px; bottom: 24px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; background: #16181C; border: 1px solid #2A2D33; border-radius: 12px; padding: 14px 18px">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 13px; color: #A3A6AE">{{ doneText }}</span>
+      <button type="button" onClick="{{ restart }}" style="font: inherit; color: #EDEDEF; background: transparent; border: 0; padding: 8px 4px; text-decoration: underline; text-underline-offset: 4px; cursor: pointer">Ver el aviso otra vez</button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { view: 'banner', analytics: false, result: '' };
+  }
+  renderVals() {
+    const on = this.state.analytics;
+    return {
+      showBanner: this.state.view === 'banner',
+      showPanel: this.state.view === 'panel',
+      showDone: this.state.view === 'done',
+      doneText: this.state.result,
+      analyticsAria: on ? 'true' : 'false',
+      switchStyle: 'flex: none; position: relative; width: 52px; height: 32px; border-radius: 9999px; cursor: pointer; padding: 0; border: 1px solid ' + (on ? '#C6F26B' : '#3A3D44') + '; background: ' + (on ? '#C6F26B' : '#0E0F11'),
+      knobStyle: 'position: absolute; top: 3px; left: ' + (on ? '23px' : '3px') + '; width: 24px; height: 24px; border-radius: 9999px; background: ' + (on ? '#0E0F11' : '#A3A6AE'),
+      accept: () => this.setState({ view: 'done', analytics: true, result: 'Analítica aceptada · preferencia guardada' }),
+      reject: () => this.setState({ view: 'done', analytics: false, result: 'Analítica rechazada · preferencia guardada' }),
+      openPanel: () => this.setState({ view: 'panel' }),
+      toggle: () => this.setState({ analytics: !this.state.analytics }),
+      save: () => this.setState({ view: 'done', result: this.state.analytics ? 'Analítica aceptada · preferencia guardada' : 'Analítica rechazada · preferencia guardada' }),
+      restart: () => this.setState({ view: 'banner', result: '' })
+    };
+  }
+}
+</script>
+</body>
+</html>
