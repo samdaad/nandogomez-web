@@ -1,0 +1,107 @@
+---
+import { getGaId } from '../lib/ga';
+
+const gaId = getGaId();
+---
+<div id="ng-consent" data-ga-id={gaId}>
+  <section id="ng-consent-banner" class="banner" aria-label="Aviso de cookies" hidden>
+    <p class="label">/ cookies</p>
+    <p class="text">Usamos una cookie propia para recordar tu elección y, solo si lo aceptas, cookies de Google Analytics para saber cómo se usa la web. Más detalle en la <a href="/cookies">política de cookies</a>.</p>
+    <div class="actions">
+      <button type="button" class="btn" data-consent-action="reject">Rechazar</button>
+      <button type="button" class="btn" data-consent-action="accept">Aceptar</button>
+      <button type="button" class="link" data-consent-action="open">Configurar</button>
+    </div>
+  </section>
+
+  <dialog id="ng-consent-panel" class="panel" aria-labelledby="ng-consent-title">
+    <div class="head">
+      <p id="ng-consent-title" class="title" tabindex="-1">Preferencias de cookies</p>
+      <button type="button" class="link" data-consent-action="close">Cerrar</button>
+    </div>
+    <p class="text">Elige qué permites. Puedes cambiarlo cuando quieras desde el pie de la web.</p>
+
+    <div class="row" data-consent-row>
+      <div>
+        <p class="row-title">Técnicas</p>
+        <p class="text">Guardan tu elección sobre las cookies. Son necesarias y no se pueden desactivar.</p>
+      </div>
+      <span class="always">Siempre activas</span>
+    </div>
+    <div class="row" data-consent-row>
+      <div>
+        <p class="row-title">Analítica</p>
+        <p class="text">Google Analytics: cuántas visitas hay y qué páginas se leen. No se usan para publicidad.</p>
+      </div>
+      <button type="button" class="switch" role="switch" aria-checked="false" aria-label="Cookies de analítica" data-consent-action="toggle"><span class="knob" aria-hidden="true"></span></button>
+    </div>
+
+    <div class="actions panel-actions">
+      <button type="button" class="btn" data-consent-action="reject">Rechazar todo</button>
+      <button type="button" class="btn" data-consent-action="accept">Aceptar todo</button>
+      <button type="button" class="btn btn--lime" data-consent-action="save">Guardar selección</button>
+    </div>
+  </dialog>
+
+  <p class="visually-hidden" role="status" aria-live="polite" data-consent-status></p>
+</div>
+<style>
+  [hidden] { display: none !important; }
+  .banner {
+    position: fixed; z-index: 50; bottom: var(--space-4); inset-inline: var(--space-4);
+    max-width: 560px; padding: var(--space-6); background: var(--surface);
+    border: var(--hairline) solid var(--border-strong); border-radius: var(--radius-lg);
+  }
+  .panel {
+    width: min(600px, 100% - 32px); max-height: calc(100dvh - 32px); overflow: auto;
+    margin: auto; padding: var(--space-8); color: var(--ink); background: var(--surface);
+    border: var(--hairline) solid var(--border-strong); border-radius: var(--radius-xl);
+  }
+  .panel::backdrop { background: var(--overlay); }
+  .head { display: flex; gap: var(--space-4); align-items: flex-start; justify-content: space-between; }
+  .title { margin: 0 0 var(--space-2); font-size: 24px; line-height: 1.25; font-weight: 600; letter-spacing: -0.02em; }
+  p { margin: 0; }
+  .label { margin-bottom: 10px; font-family: var(--font-mono); font-size: 13px; color: var(--ink-muted); }
+  .text { color: var(--ink-muted); font-size: 15px; line-height: 1.6; }
+  .banner .text { margin-bottom: var(--space-6); }
+  .panel > .text { margin-bottom: var(--space-6); }
+  .banner a { color: var(--ink); }
+  .row {
+    display: flex; gap: var(--space-6); align-items: flex-start; justify-content: space-between;
+    padding: 18px 0; border-top: var(--hairline) solid var(--border);
+  }
+  .row + .row { border-bottom: var(--hairline) solid var(--border); }
+  .row-title { margin-bottom: 4px; font-weight: 600; font-size: 15px; }
+  .always { flex: none; padding-top: 2px; font-family: var(--font-mono); font-size: 13px; color: var(--ink-muted); }
+  .actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+  .panel-actions { margin-top: 28px; }
+  .btn, .link, .switch { font: inherit; cursor: pointer; }
+  .btn {
+    padding: 13px 22px; font-size: 15px; font-weight: 600; line-height: 1.4; color: var(--ink);
+    background: transparent; border: var(--hairline) solid var(--border-control); border-radius: var(--radius-md);
+  }
+  .btn--lime { color: var(--on-lime); background: var(--lime); border-color: var(--lime); }
+  .link {
+    padding: 13px 8px; font-size: 15px; color: var(--ink-muted); background: transparent; border: 0;
+    text-decoration: underline; text-underline-offset: 4px;
+  }
+  .switch {
+    flex: none; position: relative; width: 52px; height: 32px; padding: 0;
+    background: var(--bg); border: var(--hairline) solid var(--border-control); border-radius: var(--radius-full);
+  }
+  .knob {
+    position: absolute; top: 3px; left: 3px; width: 24px; height: 24px;
+    background: var(--ink-muted); border-radius: var(--radius-full);
+  }
+  .switch[aria-checked="true"] { background: var(--lime); border-color: var(--lime); }
+  .switch[aria-checked="true"] .knob { left: 23px; background: var(--on-lime); }
+  @media (prefers-reduced-motion: no-preference) {
+    .knob { transition: left 0.15s ease; }
+    .switch { transition: background-color 0.15s ease; }
+  }
+  @media (max-width: 400px) {
+    .banner, .panel { padding: var(--space-4); }
+    .row { gap: var(--space-3); flex-wrap: wrap; }
+    .btn { flex: 1 1 auto; text-align: center; }
+  }
+</style>
