@@ -33,7 +33,8 @@ function cli(dist: string, args: string[], env: Record<string, string | undefine
 describe('isValidGaId', () => {
   it('acepta G-XXXX y rechaza vacío, espacios o formas raras', () => {
     expect(isValidGaId(VALID_GA)).toBe(true);
-    for (const v of [undefined, '', '  ', 'G-', 'G-abc', 'UA-123456', 'G-ABC<script>', 'G-ABC123 ']) expect(isValidGaId(v)).toBe(false);
+    expect(isValidGaId(` ${VALID_GA}\n`)).toBe(true); // trim, igual que CookieTable
+    for (const v of [undefined, '', '  ', 'G-', 'G-abc', 'UA-123456', 'G-ABC<script>']) expect(isValidGaId(v)).toBe(false);
   });
 });
 
@@ -45,9 +46,12 @@ describe('visibleTextNodes / findPendingInHtml', () => {
     const html = page('<script>const a = [1, 2];</script><style>a[href]{color:red}</style><p>ok</p>');
     expect(findPendingInHtml(html)).toEqual([]);
   });
-  it('ignora atributos y comentarios', () => {
-    const html = page('<!-- [TODO nota] --><a href="/x" aria-label="[pendiente]" data-x="[abc]">ok</a>');
+  it('ignora comentarios y atributos no visibles (data-*, href, src, class, id)', () => {
+    const html = page('<!-- [TODO nota] --><a href="/[x1]" data-x="[abc]" class="[cl]" id="[id]">ok</a><img src="/[im]" alt="ok">');
     expect(findPendingInHtml(html)).toEqual([]);
+  });
+  it('cuenta aria-label, alt, title, placeholder y value', () => {
+    expect(findPendingInHtml(page('<a href="/x" aria-label="[pendiente]">ok</a>'))).toEqual(['[pendiente]']);
   });
   it('un > dentro de un atributo no rompe el recorrido de texto', () => {
     expect(findPendingInHtml(page('<a title="a > b" href="/x">[PENDIENTE X]</a>'))).toEqual(['[PENDIENTE X]']);
@@ -58,8 +62,9 @@ describe('visibleTextNodes / findPendingInHtml', () => {
   it('decodifica entidades: &#91;…&#93; también es un corchete visible', () => {
     expect(findPendingInHtml(page('<p>&#91;DATO&#93; y &lbrack;OTRO&rbrack;</p>'))).toEqual(['[DATO]', '[OTRO]']);
   });
-  it('no marca corchetes de un solo carácter ni vacíos ni multilínea (patrón del plan)', () => {
-    expect(findPendingInHtml(page('<p>[] [a] [uno\ndos]</p>'))).toEqual([]);
+  it('no marca corchetes de un solo carácter ni vacíos; un salto de línea dentro se colapsa a un espacio', () => {
+    expect(findPendingInHtml(page('<p>[] [a] [uno\ndos]</p>'))).toEqual(['[uno dos]']);
+    expect(findPendingInHtml(page('<p>[uno</p><p>dos]</p>'))).toEqual([]);
   });
   it('devuelve varios pendientes en orden', () => {
     expect(findPendingInHtml(page('<p>[UNO] texto</p><p>[DOS]</p>'))).toEqual(['[UNO]', '[DOS]']);
@@ -130,6 +135,23 @@ describe('CLI check-release', () => {
   it('limpio + GA válido: 0 en ambos modos', () => {
     expect(cli(clean(), ['--strict'], { PUBLIC_GA_ID: VALID_GA }).status).toBe(0);
     expect(cli(clean(), [], { PUBLIC_GA_ID: VALID_GA }).status).toBe(0);
+  });
+  it('dist sin ningún .html es un problema (error en estricto, aviso en normal)', () => {
+    const d = fixture({ 'notas.txt': 'nada' });
+    expect(cli(d, ['--strict'], { PUBLIC_GA_ID: VALID_GA }).status).toBe(1);
+    expect(cli(d, [], { PUBLIC_GA_ID: VALID_GA }).status).toBe(0);
+  });
+  it('--dist vacío o sin "=" da un error claro (2)', () => {
+    for (const a of ['--dist=', '--dist']) {
+      const r = spawnSync(process.execPath, [CLI, a], { encoding: 'utf8' });
+      expect(r.status).toBe(2);
+      expect(r.stderr).toContain('--dist');
+    }
+  });
+  it('entrada patológica no cuelga (sin backtracking)', () => {
+    const t = Date.now();
+    findPendingInHtml('<a'.repeat(100000));
+    expect(Date.now() - t).toBeLessThan(1000);
   });
   it('dist inexistente: error en estricto, aviso (0) en modo normal', () => {
     const missing = join(tmpdir(), 'check-release-no-existe');
