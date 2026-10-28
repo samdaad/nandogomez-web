@@ -1,0 +1,54 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import DataBlock from '../components/DataBlock.astro';
+import { EMAIL } from '../lib/site';
+
+const a = [
+  { term: 'Datos', value: 'Los que incluyas en tu mensaje: normalmente nombre, correo electrónico, empresa y lo que nos cuentes.' },
+  { term: 'Finalidad', value: 'Responderte y, si lo pides, preparar una propuesta de servicios.' },
+  { term: 'Base legal', value: 'Tu consentimiento al escribirnos y la aplicación de medidas precontractuales a petición tuya (art. 6.1.a y 6.1.b del RGPD).' },
+  { term: 'Conservación', value: 'Tres años desde el último contacto. Si llegamos a trabajar juntos, los datos vinculados a la relación comercial se conservan durante los plazos que fija la normativa fiscal y mercantil.' },
+];
+const b = [
+  { term: 'Datos', value: 'Datos de navegación recogidos con Google Analytics: páginas visitadas, tiempo de visita, tipo de dispositivo, navegador y ubicación aproximada, asociados a un identificador de cookie.' },
+  { term: 'Finalidad', value: 'Saber cómo se usa la web para mejorarla. No se usan para publicidad.' },
+  { term: 'Base legal', value: 'Tu consentimiento, que das o rechazas en el aviso de cookies y puedes retirar en cualquier momento (art. 6.1.a del RGPD).' },
+  { term: 'Conservación', value: 'Hemos configurado Google Analytics para conservar los datos asociados a usuarios y eventos durante 14 meses; después dejan de estar disponibles para su análisis detallado. Los informes con cifras agregadas, que no identifican a nadie, pueden mantenerse más tiempo. Este plazo es distinto de la duración de las cookies en tu navegador (hasta 2 años), que se detalla en la política de cookies.', html: 'Hemos configurado Google Analytics para conservar los datos asociados a usuarios y eventos durante 14 meses; después dejan de estar disponibles para su análisis detallado. Los informes con cifras agregadas, que no identifican a nadie, pueden mantenerse más tiempo. Este plazo es distinto de la duración de las cookies en tu navegador (hasta 2 años), que se detalla en la <a href="/cookies">política de cookies</a>.' },
+];
+---
+<LegalLayout title="Política de privacidad — Nando Gómez" description="Política de privacidad de nandogomez.com: qué datos tratamos, para qué, quién más tiene acceso y cómo ejercer tus derechos." heading="Política de privacidad">
+  <p class="lead">En resumen: solo tratamos los datos que tú nos envías al escribirnos y, si lo aceptas, datos de navegación para saber cómo se usa la web. No los vendemos ni los cedemos, y puedes pedir que los borremos cuando quieras.</p>
+
+  <h2>1. Responsable del tratamiento</h2>
+  <p>Digital Twofers, S.L. (NIF B16988479), con domicilio en La Riera 31, 08302 Mataró (Barcelona). Contacto para cualquier cuestión de privacidad: <a href={`mailto:${EMAIL}`}>{EMAIL}</a>. No tenemos designado delegado de protección de datos.</p>
+
+  <h2 class="before-blocks">2. Qué datos tratamos y para qué</h2>
+  <DataBlock label="A — Consultas y contacto" rows={a} />
+  <DataBlock label="B — Analítica de la web" rows={b} last />
+
+  <h2>3. Quién más tiene acceso</h2>
+  <p class="tight">No cedemos tus datos a terceros salvo obligación legal. Sí los tratan, por cuenta nuestra y con contrato de encargo de tratamiento, estos proveedores:</p>
+  <ul>
+    <li><strong>Cloudflare, Inc.</strong>: alojamiento de la web y reenvío del correo de contacto.</li>
+    <li><strong>Google</strong>: buzón de correo donde se reciben los mensajes y, solo si lo aceptas, Google Analytics.</li>
+  </ul>
+
+  <h2>4. Transferencias internacionales</h2>
+  <p>Cloudflare, Inc. y Google LLC tienen sede en Estados Unidos. Ambas están adheridas al Marco de Privacidad de Datos UE-EE. UU. (EU-US Data Privacy Framework), sobre el que la Comisión Europea adoptó una decisión de adecuación, y ofrecen además cláusulas contractuales tipo aprobadas por la Comisión.</p>
+
+  <h2>5. Tus derechos</h2>
+  <p class="tight">Puedes acceder a tus datos, rectificarlos, pedir que los suprimamos, oponerte a su tratamiento o limitarlo, solicitar su portabilidad y retirar tu consentimiento en cualquier momento, sin que eso afecte a lo tratado antes. Escríbenos a <a href={`mailto:${EMAIL}`}>{EMAIL}</a> indicando qué derecho quieres ejercer; si no podemos confirmar tu identidad, te pediremos que la acredites.</p>
+  <p>Si crees que no hemos tratado bien tus datos, puedes reclamar ante la Agencia Española de Protección de Datos (<a href="https://www.aepd.es">www.aepd.es</a>).</p>
+
+  <h2>6. Otros</h2>
+  <p class="last">No tomamos decisiones automatizadas ni elaboramos perfiles con tus datos. Esta web no está dirigida a menores de 14 años. Si cambiamos esta política, actualizaremos la fecha de arriba.</p>
+</LegalLayout>
+<style>
+  .lead { font-size: 19px; }
+  .tight { margin-bottom: var(--space-4); }
+  .before-blocks { margin-bottom: var(--space-6); }
+  ul { margin: 0 0 56px; padding-left: 20px; color: var(--ink-muted); }
+  li { margin-bottom: var(--space-2); }
+  li:last-child { margin-bottom: 0; }
+  strong { color: var(--ink); font-weight: 500; }
+</style>

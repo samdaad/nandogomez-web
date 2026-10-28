@@ -14,7 +14,8 @@ export function canonicalUrl(pathname: string): string {
     .replace(/\.html$/i, '')
     .replace(/\/index$/i, '');
   const url = new URL(path === '' ? '/' : path, SITE_URL);
-  return url.origin === SITE_URL ? url.href : `${SITE_URL}/`;
+  // `/..//evil.com` resuelve a `//evil.com`: se colapsan las barras repetidas.
+  return url.origin === SITE_URL ? `${SITE_URL}${url.pathname.replace(/\/{2,}/g, '/')}` : `${SITE_URL}/`;
 }
 export const PHONE_DISPLAY = '+34 603 24 26 82';
 export const PHONE_HREF = 'tel:+34603242682';

@@ -1,0 +1,15 @@
+---
+import DefinitionRows from './DefinitionRows.astro';
+interface Row { term: string; value: string; href?: string; html?: string }
+interface Props { label: string; rows: Row[]; last?: boolean }
+const { label, rows, last = false } = Astro.props;
+---
+<section class:list={['block', { last }]}>
+  <p class="label">{label}</p>
+  <DefinitionRows rows={rows} variant="card" />
+</section>
+<style>
+  .block { border: var(--hairline) solid var(--border); border-radius: var(--radius-lg); padding: 28px; margin-bottom: var(--space-4); background: var(--surface); }
+  .block.last { margin-bottom: 56px; }
+  .label { margin: 0 0 var(--space-2); font-family: var(--font-mono); font-size: 13px; color: var(--lime); }
+</style>

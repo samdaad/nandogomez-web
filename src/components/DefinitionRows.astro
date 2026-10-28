@@ -1,13 +1,13 @@
 ---
-interface Row { term: string; value: string; href?: string }
-interface Props { rows: Row[] }
-const { rows } = Astro.props;
+interface Row { term: string; value: string; href?: string; html?: string }
+interface Props { rows: Row[]; variant?: 'legal' | 'card' }
+const { rows, variant = 'legal' } = Astro.props;
 ---
-<dl>
+<dl class={variant}>
   {rows.map((r) => (
     <div>
       <dt>{r.term}</dt>
-      <dd>{r.href ? <a href={r.href}>{r.value}</a> : r.value}</dd>
+      <dd>{r.html !== undefined ? <Fragment set:html={r.html} /> : r.href ? <a href={r.href}>{r.value}</a> : r.value}</dd>
     </div>
   ))}
 </dl>
@@ -16,4 +16,10 @@ const { rows } = Astro.props;
   div { display: flex; flex-wrap: wrap; gap: 2px var(--space-6); padding: 14px 0; border-bottom: var(--hairline) solid var(--divider); }
   dt { flex: 1 1 180px; font-family: var(--font-mono); font-size: 13px; color: var(--ink-muted); padding-top: 3px; }
   dd { flex: 3 1 320px; margin: 0; overflow-wrap: anywhere; }
+  /* card: dt sobre dd, dentro de un bloque con fondo surface */
+  dl.card { margin: 0; border-top: 0; }
+  .card div { display: block; padding: 10px 0; border-bottom-color: var(--border); }
+  .card div:last-child { border-bottom: 0; }
+  .card dt { padding-top: 0; }
+  .card dd { overflow-wrap: normal; }
 </style>
