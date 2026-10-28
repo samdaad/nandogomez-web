@@ -1,0 +1,37 @@
+/* Tokens de design/tokens.json, a mano. Único sitio donde viven los colores. */
+:root {
+  --bg: #0e0f11;
+  --surface: #16181c;
+  --border: #23262b;
+  --border-strong: #2a2d33;
+  --divider: #1e2025;
+  --ink: #ededef;
+  --ink-muted: #a3a6ae;
+  --ink-subtle: #6e727b;
+  --lime: #c6f26b;
+  --on-lime: var(--bg);
+
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-16: 64px;
+  --space-28: 112px;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  --content-max: 1240px;
+  --hairline: 1px;
+
+  --font-sans: "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  /* Extensiones locales (no están en design/tokens.json) */
+  --border-control: #3a3d44;
+  --overlay: rgba(14,15,17,.72);
+}
