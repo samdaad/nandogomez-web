@@ -1,0 +1,39 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import DefinitionRows from '../components/DefinitionRows.astro';
+import { REGISTRO_MERCANTIL } from '../lib/legal';
+import { EMAIL, PHONE_DISPLAY, PHONE_HREF } from '../lib/site';
+
+const rows = [
+  { term: 'Denominación social', value: 'Digital Twofers, S.L.' },
+  { term: 'Nombre comercial', value: 'Nando Gómez' },
+  { term: 'NIF', value: 'B16988479' },
+  { term: 'Domicilio social', value: 'La Riera 31, 08302 Mataró (Barcelona), España' },
+  { term: 'Registro Mercantil', value: REGISTRO_MERCANTIL },
+  { term: 'Correo electrónico', value: EMAIL, href: `mailto:${EMAIL}` },
+  { term: 'Teléfono', value: PHONE_DISPLAY, href: PHONE_HREF },
+];
+---
+<LegalLayout title="Aviso legal — Nando Gómez" description="Aviso legal de nandogomez.com: titular, objeto, condiciones de uso, propiedad intelectual y legislación aplicable." heading="Aviso legal">
+  <h2>1. Titular de la web</h2>
+  <p class="intro">En cumplimiento del artículo 10 de la Ley 34/2002, de servicios de la sociedad de la información y de comercio electrónico (LSSI-CE), estos son los datos del titular de nandogomez.com:</p>
+  <DefinitionRows rows={rows} />
+
+  <h2>2. Objeto</h2>
+  <p>Esta web informa sobre los servicios de consultoría tecnológica, formación y asesoría a empresas que presta Nando Gómez a través de Digital Twofers, S.L. Su contenido es informativo y no constituye una oferta vinculante: cualquier servicio se concreta en una propuesta o contrato aparte.</p>
+
+  <h2>3. Condiciones de uso</h2>
+  <p>Al navegar por esta web aceptas usarla de forma lícita y de acuerdo con este aviso legal. No está permitido utilizarla para dañar sus sistemas, introducir código malicioso ni acceder sin autorización a áreas restringidas.</p>
+
+  <h2>4. Propiedad intelectual e industrial</h2>
+  <p>Los textos, el diseño, las fotografías, el código y los signos distintivos de esta web pertenecen a Digital Twofers, S.L. o a terceros que han autorizado su uso. No se permite reproducirlos, distribuirlos ni transformarlos sin autorización previa por escrito, salvo para uso personal y privado. Las marcas de terceros que aparecen, como los nombres de clientes, pertenecen a sus titulares.</p>
+
+  <h2>5. Responsabilidad y enlaces</h2>
+  <p>Procuramos que la información de esta web sea correcta y esté actualizada, pero no garantizamos la ausencia de errores ni la disponibilidad continua del sitio. Los enlaces a webs de terceros, como LinkedIn o twofers.es, se ofrecen por comodidad; no controlamos su contenido ni respondemos de él.</p>
+
+  <h2>6. Protección de datos y cookies</h2>
+  <p>El tratamiento de datos personales se explica en la <a href="/privacidad">política de privacidad</a> y el uso de cookies, en la <a href="/cookies">política de cookies</a>.</p>
+
+  <h2>7. Legislación aplicable y jurisdicción</h2>
+  <p class="last">Este aviso legal se rige por la legislación española. Para cualquier controversia, las partes se someten a los juzgados y tribunales del domicilio del usuario cuando este tenga la condición de consumidor.</p>
+</LegalLayout>

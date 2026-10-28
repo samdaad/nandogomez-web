@@ -6,11 +6,15 @@ export const THEME_COLOR = '#0e0f11';
 /** Normaliza una ruta a su URL canónica: sin query, hash, `.html` ni `/index`, y sin barra final (salvo la raíz). */
 export function canonicalUrl(pathname: string): string {
   const path = pathname
+    .replace(/[\t\n\r]/g, '') // WHATWG URL los elimina: `/\t/evil.com` sería `//evil.com`
     .replace(/[?#].*$/s, '')
     .replace(/\\/g, '/') // `\` cuenta como `/` en new URL: evita `/\evil.com`
     .replace(/^\/*/, '/') // `//evil.com/x` no debe salir a otro dominio
     .replace(/\/+$/, '')
     .replace(/\.html$/i, '')
-    .replace(/\/index$/, '');
-  return new URL(path === '' ? '/' : path, SITE_URL).href;
+    .replace(/\/index$/i, '');
+  const url = new URL(path === '' ? '/' : path, SITE_URL);
+  return url.origin === SITE_URL ? url.href : `${SITE_URL}/`;
 }
+export const PHONE_DISPLAY = '+34 603 24 26 82';
+export const PHONE_HREF = 'tel:+34603242682';

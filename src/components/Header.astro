@@ -1,0 +1,22 @@
+---
+---
+<header>
+  <a class="brand" href="/">
+    <span class="mark" aria-hidden="true">NG</span>
+    Nando Gómez
+  </a>
+  <a class="back" href="/">&larr; Volver a la web</a>
+</header>
+<style>
+  header {
+    max-width: var(--content-max); margin: 0 auto; padding: var(--space-6);
+    display: flex; flex-wrap: wrap; gap: var(--space-4) 40px; align-items: center; justify-content: space-between;
+    border-bottom: var(--hairline) solid var(--divider);
+  }
+  .brand { display: flex; align-items: center; gap: var(--space-3); text-decoration: none; font-weight: 600; letter-spacing: -0.01em; }
+  .mark {
+    width: 32px; height: 32px; border-radius: var(--radius-sm); border: var(--hairline) solid var(--border-strong);
+    display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 13px; color: var(--lime);
+  }
+  .back { color: var(--ink-muted); text-decoration: none; font-size: 15px; padding: var(--space-3) 0; }
+</style>
