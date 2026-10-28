@@ -1,0 +1,18 @@
+{
+  "name": "nandogomez-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "typecheck": "astro check --minimumFailingSeverity warning",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@astrojs/check": "0.9.12",
+    "astro": "7.4.2",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}
