@@ -1,0 +1,28 @@
+---
+import '../styles/global.css';
+import { THEME_COLOR, canonicalUrl } from '../lib/site';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string | false;
+}
+
+const { title, description, canonical } = Astro.props;
+const href = canonical === undefined ? canonicalUrl(Astro.url.pathname) : canonical;
+---
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content={THEME_COLOR} />
+    {href && <link rel="canonical" href={href} />}
+    {href && <meta property="og:url" content={href} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Saltar al contenido</a>
+    <slot />
+  </body>
+</html>
