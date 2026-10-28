@@ -18,6 +18,12 @@ describe('canonicalUrl', () => {
     ['/aviso-legal.html', 'https://nandogomez.com/aviso-legal'],
     ['/aviso-legal', 'https://nandogomez.com/aviso-legal'],
     ['/aviso-legal/', 'https://nandogomez.com/aviso-legal'],
+    ['//evil.com/x', 'https://nandogomez.com/evil.com/x'],
+    ['/\\evil.com/x', 'https://nandogomez.com/evil.com/x'],
+    ['/aviso-legal.html/', 'https://nandogomez.com/aviso-legal'],
+    ['/aviso-legal.HTML', 'https://nandogomez.com/aviso-legal'],
+    ['/aviso-legal?a=1#b', 'https://nandogomez.com/aviso-legal'],
+    ['/index/', 'https://nandogomez.com/'],
   ])('%s -> %s', (path, expected) => {
     expect(canonicalUrl(path)).toBe(expected);
   });

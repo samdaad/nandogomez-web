@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { distFiles, pages, read } from './helpers';
+import { relative } from 'node:path';
+import { DIST, distFiles, pages, read } from './helpers';
 
-const all = pages();
+const all = pages().map((p) => ({ ...p, file: `/dist/${relative(DIST, p.file)}` }));
 const css = distFiles().filter((f) => f.endsWith('.css'));
 const EXTERNAL = /fonts\.googleapis\.com|fonts\.gstatic\.com|\/_blob\/|support\.js|DCLogic|data-props|\{\{|x-dc/;
 
 describe('dist · base (P1)', () => {
   it('hay al menos una página y existe dist/index.html', () => {
-    expect(all.map((p) => p.file)).toContainEqual(expect.stringMatching(/dist\/index\.html$/));
+    expect(all.map((p) => p.file)).toContain('/dist/index.html');
   });
 
   describe.each(all)('$file', ({ html, doc }) => {
@@ -32,12 +33,12 @@ describe('dist · base (P1)', () => {
   });
 
   it('la home tiene canonical https://nandogomez.com/ exacto', () => {
-    const home = all.find((p) => p.file.endsWith('dist/index.html'));
+    const home = all.find((p) => p.file === '/dist/index.html');
     expect(home?.doc.querySelector('link[rel=canonical]')?.getAttribute('href')).toBe('https://nandogomez.com/');
   });
 
   it('la home enlaza una hoja de estilos y tiene theme-color', () => {
-    const home = all.find((p) => p.file.endsWith('dist/index.html'));
+    const home = all.find((p) => p.file === '/dist/index.html');
     expect(home?.doc.querySelector('link[rel=stylesheet]')).not.toBeNull();
     expect(home?.doc.querySelector('meta[name=theme-color]')?.getAttribute('content')).toBe('#0e0f11');
   });

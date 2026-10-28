@@ -22,7 +22,7 @@ const href = canonical === undefined ? canonicalUrl(Astro.url.pathname) : canoni
     {href && <meta property="og:url" content={href} />}
   </head>
   <body>
-    <a class="visually-hidden" href="#main">Saltar al contenido</a>
+    <a class="skip-link" href="#main">Saltar al contenido</a>
     <slot />
   </body>
 </html>
