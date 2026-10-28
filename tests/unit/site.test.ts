@@ -24,7 +24,14 @@ describe('canonicalUrl', () => {
     ['/aviso-legal.HTML', 'https://nandogomez.com/aviso-legal'],
     ['/aviso-legal?a=1#b', 'https://nandogomez.com/aviso-legal'],
     ['/index/', 'https://nandogomez.com/'],
+    ['/INDEX', 'https://nandogomez.com/'],
+    ['/Index.HTML', 'https://nandogomez.com/'],
+    ['/\t/evil.com/x', 'https://nandogomez.com/evil.com/x'],
+    ['\t//evil.com', 'https://nandogomez.com/evil.com'],
+    ['/\n/evil.com', 'https://nandogomez.com/evil.com'],
+    ['/\r\\evil.com', 'https://nandogomez.com/evil.com'],
   ])('%s -> %s', (path, expected) => {
     expect(canonicalUrl(path)).toBe(expected);
+    expect(new URL(canonicalUrl(path)).host).toBe('nandogomez.com');
   });
 });

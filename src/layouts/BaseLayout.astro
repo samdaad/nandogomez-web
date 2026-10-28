@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import Footer from '../components/Footer.astro';
 import { THEME_COLOR, canonicalUrl } from '../lib/site';
 
 interface Props {
@@ -24,5 +25,6 @@ const href = canonical === undefined ? canonicalUrl(Astro.url.pathname) : canoni
   <body>
     <a class="skip-link" href="#main">Saltar al contenido</a>
     <slot />
+    <Footer />
   </body>
 </html>
