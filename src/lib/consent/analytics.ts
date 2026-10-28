@@ -22,11 +22,10 @@ export function loadAnalytics(gaId: string, doc: Document, win: Window): void {
   if (!isValidGaId(gaId)) return;
   const w = win as Win;
   const gtag = ensureGtag(w);
+  const wasDisabled = w[`ga-disable-${gaId}`] === true;
+  w[`ga-disable-${gaId}`] = false;
   if (doc.querySelector('script[data-ng-ga]')) {
-    if (w[`ga-disable-${gaId}`] === true) {
-      w[`ga-disable-${gaId}`] = false;
-      gtag('consent', 'update', { analytics_storage: 'granted' });
-    }
+    if (wasDisabled) gtag('consent', 'update', { analytics_storage: 'granted' });
     return;
   }
   for (const cmd of gtagCommands(gaId)) gtag(...cmd);
@@ -42,7 +41,20 @@ export function revokeAnalytics(gaId: string, doc: Document, win: Window): void 
   const valid = isValidGaId(gaId);
   if (valid) w[`ga-disable-${gaId}`] = true;
   if (typeof w.gtag === 'function') (w.gtag as (...a: unknown[]) => void)('consent', 'update', { analytics_storage: 'denied' });
-  const names = new Set(gaCookiesToClear(doc.cookie));
+  const names = new Set<string>();
+  try {
+    gaCookiesToClear(doc.cookie).forEach((n) => names.add(n));
+  } catch {
+    /* cookies bloqueadas: se borra lo conocido */
+  }
   if (valid) ['_ga', `_ga_${gaId.slice(2)}`].forEach((n) => names.add(n));
-  for (const n of names) for (const c of expireCookieWrites(n, win.location.hostname)) doc.cookie = c;
+  const host = win.location.hostname.replace(/\.$/, '');
+  for (const n of names)
+    for (const c of expireCookieWrites(n, host)) {
+      try {
+        doc.cookie = c;
+      } catch {
+        /* sin permiso para escribir */
+      }
+    }
 }
