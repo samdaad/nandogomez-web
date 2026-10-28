@@ -4,5 +4,11 @@ export default defineConfig({
   test: {
     include: ['tests/unit/**/*.test.ts'],
     environment: 'node',
+    coverage: {
+      provider: 'v8',
+      include: ['src/lib/consent/**'],
+      reporter: ['text'],
+      thresholds: { lines: 95 },
+    },
   },
 });
