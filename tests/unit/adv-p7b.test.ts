@@ -32,16 +32,17 @@ function page(o: Opts = {}) {
   const desc = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(Object.getPrototypeOf(doc)), 'cookie')
     ?? Object.getOwnPropertyDescriptor(Object.getPrototypeOf(doc), 'cookie')!;
   const writes: string[] = [];
+  const ctl = { mode };
   Object.defineProperty(doc, 'cookie', {
     configurable: true,
     get() {
-      if (mode === 'throw') throw new DOMException('bloqueadas', 'SecurityError');
+      if (ctl.mode === 'throw') throw new DOMException('bloqueadas', 'SecurityError');
       return desc.get!.call(doc);
     },
     set(v: string) {
-      if (mode === 'throw') throw new DOMException('bloqueadas', 'SecurityError');
+      if (ctl.mode === 'throw') throw new DOMException('bloqueadas', 'SecurityError');
       writes.push(v);
-      if (mode === 'real') desc.set!.call(doc, v);
+      if (ctl.mode === 'real') desc.set!.call(doc, v);
     },
   });
   const events: boolean[] = [];
@@ -53,6 +54,7 @@ function page(o: Opts = {}) {
   const btn = (scope: Element, a: string) => scope.querySelector<HTMLElement>(`[data-consent-action=${a}]`)!;
   return {
     win, doc, jar, writes, events, banner, panel, q,
+    setMode: (m: 'real' | 'ignore' | 'throw') => void (ctl.mode = m),
     sw: q('[data-consent-action=toggle]'),
     status: q('[data-consent-status]'),
     title: q('#ng-consent-title'),
@@ -406,5 +408,69 @@ describe('adv P7b · initConsentUi varias veces', () => {
     // Lo guardado debe ser lo que el usuario veía en el switch al pulsar «Guardar selección».
     expect(t.cookie()).toBe(`ng_consent=v1.${shown === 'true' ? 'granted' : 'denied'}.${nowS()}`);
     expect(shown).toBe('true');
+  });
+});
+
+describe('adv P7b · ronda 2: revocar siempre y nada de idempotencia de más', () => {
+  it.each(['ignore', 'throw'] as const)('GA cargado y luego el tarro pasa a %s: Rechazar revoca igual (ga-disable y consent denied)', (m) => {
+    const t = page({ cookies: [`${v1('granted')}; Path=/`] });
+    expect(t.gaScripts()).toBe(1);
+    t.setMode(m);
+    click(t.foot);
+    click(t.panelBtn('reject'));
+    expect(t.win[`ga-disable-${ID}`]).toBe(true);
+    const dl = t.win.dataLayer as ArrayLike<unknown>[];
+    expect(Array.from(dl[dl.length - 1]!)).toEqual(['consent', 'update', { analytics_storage: 'denied' }]);
+    expect(t.events).toEqual([false]);
+    expect(t.status.textContent).toBe('No se han podido guardar las preferencias: analítica rechazada');
+  });
+
+  it('GA cargado y la cookie denied no se puede leer después (copia duplicada imborrable): revoca igual', () => {
+    const t = page({ cookies: [`${v1('granted')}; Path=/`] });
+    t.setMode('ignore');
+    click(t.foot);
+    click(t.sw);
+    click(t.panelBtn('save'));
+    expect(t.win[`ga-disable-${ID}`]).toBe(true);
+    expect(t.events).toEqual([false]);
+  });
+
+  it('cada documento nuevo (otra página) se inicializa aunque el módulo ya haya inicializado otro', () => {
+    const jar = new CookieJar();
+    const a = page({ jar, url: 'https://nandogomez.com/' });
+    expect(a.banner.hidden).toBe(false);
+    const b = page({ jar, url: 'https://nandogomez.com/cookies' });
+    expect(b.banner.hidden).toBe(false);
+    click(b.bannerBtn('accept'));
+    expect(b.gaScripts()).toBe(1);
+    const c = page({ jar, url: 'https://nandogomez.com/privacidad' });
+    expect(c.banner.hidden).toBe(true);
+    expect(c.gaScripts()).toBe(1);
+  });
+
+  it('si el #ng-consent se sustituye por uno nuevo en el mismo documento, el nuevo se inicializa', () => {
+    const t = page();
+    const fresh = t.q('#ng-consent').cloneNode(true) as HTMLElement;
+    t.q('#ng-consent').replaceWith(fresh);
+    initConsentUi(t.doc, t.win);
+    const banner = fresh.querySelector<HTMLElement>('#ng-consent-banner')!;
+    click(banner.querySelector('[data-consent-action=reject]')!);
+    expect(banner.hidden).toBe(true);
+    expect(t.cookie()).toBe(`ng_consent=v1.denied.${nowS()}`);
+  });
+
+  it('Rechazar dos veces seguidas (banner y luego panel) vuelve a anunciar la decisión', () => {
+    const t = page();
+    click(t.bannerBtn('reject'));
+    expect(t.status.textContent).toBe('Preferencia guardada: analítica rechazada');
+    click(t.foot);
+    click(t.panelBtn('reject'));
+    expect(t.status.textContent).toBe('Preferencia guardada: analítica rechazada');
+  });
+
+  it('teclado (Enter = click con button 0) en el enlace del pie sigue abriendo el panel', () => {
+    const t = page();
+    expect(click(t.foot, { button: 0, detail: 0 }).defaultPrevented).toBe(true);
+    expect(t.panel.open).toBe(true);
   });
 });
