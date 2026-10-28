@@ -6,6 +6,7 @@ import { CONSENT_COOKIE, expireCookieWrites, readConsent, useSecureAttribute, wr
 import { reduce, type Action, type UiState, type View } from './state';
 
 const DECISIONS = new Set(['accept', 'reject', 'save']);
+const started = new WeakSet<Element>();
 
 export function initConsentUi(doc: Document, win: Window): void {
   const root = doc.getElementById('ng-consent');
@@ -14,7 +15,8 @@ export function initConsentUi(doc: Document, win: Window): void {
   const title = root?.querySelector<HTMLElement>('#ng-consent-title');
   const toggle = root?.querySelector<HTMLElement>('[data-consent-action=toggle]');
   const status = root?.querySelector<HTMLElement>('[data-consent-status]');
-  if (!root || !banner || !panel || !title || !toggle || !status) return;
+  if (!root || !banner || !panel || !title || !toggle || !status || started.has(root)) return;
+  started.add(root);
 
   const gaId = isValidGaId(root.dataset.gaId) ? root.dataset.gaId : null;
   const nowS = () => Math.floor(Date.now() / 1000);
@@ -54,16 +56,18 @@ export function initConsentUi(doc: Document, win: Window): void {
     }
     const t = nowS();
     const wrote = writeConsent((c) => void (doc.cookie = c), wanted, t, { secure: useSecureAttribute(protocol, hostname) });
-    return wanted && wrote && readConsent(() => doc.cookie, t)?.analytics === true;
+    return wrote && readConsent(() => doc.cookie, t)?.analytics === wanted;
   };
 
   const decide = (wanted: boolean) => {
-    const granted = persist(wanted);
+    const stored = persist(wanted);
+    const granted = wanted && stored;
     if (granted && gaId) loadAnalytics(gaId, doc, win);
     else revokeAnalytics(gaId ?? '', doc, win);
-    status.textContent = wanted && !granted
-      ? 'No se han podido guardar las preferencias: analítica rechazada'
-      : `Preferencias guardadas: analítica ${granted ? 'aceptada' : 'rechazada'}`;
+    status.textContent = '';
+    status.textContent = stored
+      ? `Preferencia guardada: analítica ${granted ? 'aceptada' : 'rechazada'}`
+      : 'No se han podido guardar las preferencias: analítica rechazada';
     doc.dispatchEvent(new (win as unknown as typeof globalThis).CustomEvent('ng:consent-change', { detail: { analytics: granted } }));
   };
 
@@ -84,6 +88,7 @@ export function initConsentUi(doc: Document, win: Window): void {
     const el = (e.target as Element | null)?.closest<HTMLElement>('[data-consent-open], [data-consent-action]');
     if (!el) return;
     if (el.hasAttribute('data-consent-open')) {
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       e.preventDefault();
       return open(el);
     }
@@ -93,7 +98,9 @@ export function initConsentUi(doc: Document, win: Window): void {
     else if (name === 'close') act({ type: 'escape' });
     else if (name === 'accept' || name === 'reject' || name === 'save' || name === 'toggle') act({ type: name });
   });
-  doc.addEventListener('ng:consent-open', () => open(doc.activeElement as HTMLElement | null));
+  doc.addEventListener('ng:consent-open', () => {
+    if (state.view !== 'panel') open(doc.activeElement as HTMLElement | null);
+  });
   panel.addEventListener('close', () => {
     if (state.view === 'panel') act({ type: 'escape' });
   });

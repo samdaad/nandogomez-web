@@ -137,7 +137,7 @@ describe('banner: aceptar y rechazar', () => {
     expect(w).toBe(`ng_consent=v1.granted.${nowS()}; Path=/; Max-Age=31536000; SameSite=Lax; Secure`);
     expect(t.banner.hidden).toBe(true);
     expect(t.scripts()).toHaveLength(1);
-    expect(t.status.textContent).toBe('Preferencias guardadas: analítica aceptada');
+    expect(t.status.textContent).toBe('Preferencia guardada: analítica aceptada');
     expect(t.events).toEqual([true]);
   });
 
@@ -147,7 +147,7 @@ describe('banner: aceptar y rechazar', () => {
     expect(t.consentWrites()).toEqual([`ng_consent=v1.denied.${nowS()}; Path=/; Max-Age=31536000; SameSite=Lax; Secure`]);
     expect(t.banner.hidden).toBe(true);
     expect(t.scripts()).toHaveLength(0);
-    expect(t.status.textContent).toBe('Preferencias guardadas: analítica rechazada');
+    expect(t.status.textContent).toBe('Preferencia guardada: analítica rechazada');
     expect(t.events).toEqual([false]);
   });
 
@@ -249,7 +249,7 @@ describe('panel', () => {
     expect(t.panel.open).toBe(false);
     expect(t.banner.hidden).toBe(true);
     expect(t.scripts()).toHaveLength(1);
-    expect(t.status.textContent).toBe('Preferencias guardadas: analítica aceptada');
+    expect(t.status.textContent).toBe('Preferencia guardada: analítica aceptada');
   });
 
   it('Guardar selección sin tocar el switch: denied', () => {
@@ -272,6 +272,45 @@ describe('panel', () => {
     click(r.panelBtn('reject'));
     expect(r.consentWrites()[0]).toMatch(/denied/);
     expect(r.scripts()).toHaveLength(0);
+  });
+});
+
+describe('robustez', () => {
+  it('clic con modificador o botón ≠ 0 en [data-consent-open] no se intercepta', () => {
+    const t = setup({ cookie: valid('denied') });
+    for (const init of [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }]) {
+      const ev = new t.win.MouseEvent('click', { bubbles: true, cancelable: true, ...init });
+      t.foot.dispatchEvent(ev);
+      expect(ev.defaultPrevented).toBe(false);
+      expect(t.panel.open).toBe(false);
+    }
+  });
+
+  it('ng:consent-open con el panel abierto no reinicia borrador ni disparador', () => {
+    const t = setup({ cookie: valid('denied') });
+    click(t.foot);
+    click(t.sw);
+    t.doc.dispatchEvent(new t.win.CustomEvent('ng:consent-open'));
+    expect(t.sw.getAttribute('aria-checked')).toBe('true');
+    pressEscape(t.win, t.panel);
+    expect(t.doc.activeElement).toBe(t.foot);
+  });
+
+  it('dos inicializaciones sobre el mismo documento no duplican el comportamiento', () => {
+    const t = setup();
+    initConsentUi(t.doc, t.win);
+    click(t.bannerBtn('open'));
+    click(t.sw);
+    click(t.panelBtn('save'));
+    expect(t.consentWrites()).toHaveLength(1);
+    expect(t.consentWrites()[0]).toMatch(/granted/);
+    expect(t.banner.hidden).toBe(true);
+  });
+
+  it('rechazar sin persistencia lo anuncia', () => {
+    const t = setup({ jar: 'ignore' });
+    click(t.bannerBtn('reject'));
+    expect(t.status.textContent).toBe('No se han podido guardar las preferencias: analítica rechazada');
   });
 });
 
@@ -364,7 +403,7 @@ describe('cookies bloqueadas', () => {
     expect(() => click(t.bannerBtn('reject'))).not.toThrow();
     expect(t.banner.hidden).toBe(true);
     expect(t.scripts()).toHaveLength(0);
-    expect(t.status.textContent).toContain('analítica rechazada');
+    expect(t.status.textContent).toBe('No se han podido guardar las preferencias: analítica rechazada');
   });
 
   it('document.cookie lanza: aceptar no carga analítica', () => {
