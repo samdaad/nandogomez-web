@@ -5,5 +5,7 @@ export default defineConfig({
     include: ['tests/dist/**/*.test.ts'],
     environment: 'node',
     testTimeout: 120_000,
+    // Varios ficheros lanzan `astro build` y comparten .astro/.prerender: en serie para evitar la carrera.
+    fileParallelism: false,
   },
 });
