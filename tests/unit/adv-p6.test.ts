@@ -275,3 +275,55 @@ describe('adv P6 · sin cableado en P6', () => {
     expect(readFileSync('src/lib/consent/analytics.ts', 'utf8')).toContain("'https://www.googletagmanager.com/gtag/js?id='");
   });
 });
+
+describe('adv P6 r2 · caminos de error de la revocación y host con punto final', () => {
+  it('si la lectura de cookies lanza, se borran igualmente _ga y _ga_<ID> en todos los Domain, tras ga-disable y denied', () => {
+    const { doc, win } = setup('https://www.nandogomez.com/');
+    loadAnalytics(ID, doc, win);
+    const log: string[] = [];
+    const gt = win.gtag as (...a: unknown[]) => void;
+    win.gtag = (...a: unknown[]) => { log.push(`gtag:${String(a[1])}:${win[`ga-disable-${ID}`]}`); gt(...a); };
+    Object.defineProperty(doc, 'cookie', { get: () => { throw new DOMException('x', 'SecurityError'); }, set: (v: string) => void log.push(v), configurable: true });
+    revokeAnalytics(ID, doc, win);
+    expect(log[0]).toBe('gtag:update:true');
+    expect(log.slice(1)).toEqual(['_ga', '_ga_TEST1234'].flatMap((n) => [
+      `${n}=; Max-Age=0; Path=/`, `${n}=; Max-Age=0; Path=/; Domain=www.nandogomez.com`, `${n}=; Max-Age=0; Path=/; Domain=.nandogomez.com`,
+    ]));
+  });
+
+  it('si una escritura lanza, se intentan todas las demás', () => {
+    const { doc, win } = setup('https://nandogomez.com/');
+    const tried: string[] = [];
+    Object.defineProperty(doc, 'cookie', { get: () => '_ga=1; _ga_OTHER99=2', set: (v: string) => { tried.push(v); throw new Error('no'); }, configurable: true });
+    expect(() => revokeAnalytics(ID, doc, win)).not.toThrow();
+    expect(tried).toHaveLength(9);
+    expect(win[`ga-disable-${ID}`]).toBe(true);
+  });
+
+  it.each([['https://nandogomez.com./', 'nandogomez.com'], ['https://www.nandogomez.com./', 'www.nandogomez.com']])('host %s se normaliza', (url, host) => {
+    const { doc, win, writes } = setup(url, '_ga=1');
+    revokeAnalytics(ID, doc, win);
+    expect(writes).toContain(`_ga=; Max-Age=0; Path=/; Domain=${host}`);
+    expect(writes).toContain('_ga=; Max-Age=0; Path=/; Domain=.nandogomez.com');
+    expect(writes.some((w) => /Domain=[^;]*\.$/.test(w))).toBe(false);
+  });
+
+  it('load con ID inválido tras revocar no reactiva nada', () => {
+    const { doc, win, dl } = setup();
+    loadAnalytics(ID, doc, win);
+    revokeAnalytics(ID, doc, win);
+    const n = dl()!.length;
+    loadAnalytics('g-test1234', doc, win);
+    loadAnalytics('G-OTHER99', doc, win); // otro ID válido: no toca el flag del ID revocado
+    expect(win[`ga-disable-${ID}`]).toBe(true);
+    expect(dl()!.slice(n).some((e) => ((e as unknown[])[2] as Record<string, string> | undefined)?.analytics_storage === 'granted')).toBe(false);
+  });
+
+  it('revoke → load sin script previo: flag a false y secuencia completa sin update duplicado', () => {
+    const { doc, win, dl } = setup();
+    revokeAnalytics(ID, doc, win);
+    loadAnalytics(ID, doc, win);
+    expect(win[`ga-disable-${ID}`]).toBe(false);
+    expect(dl()!.map((e) => (e as unknown[])[0])).toEqual(['consent', 'js', 'config']);
+  });
+});
