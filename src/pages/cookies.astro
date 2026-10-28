@@ -1,0 +1,38 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import CookieTable from '../components/CookieTable.astro';
+import { EMAIL } from '../lib/site';
+---
+<LegalLayout title="Política de cookies — Nando Gómez" description="Política de cookies de nandogomez.com: qué cookies usa, para qué sirven, cuánto duran y cómo aceptarlas, rechazarlas o cambiar tu elección." heading="Política de cookies">
+  <h2>1. Qué son las cookies</h2>
+  <p>Son pequeños archivos que una web guarda en tu navegador para recordar información entre visitas. Algunas son imprescindibles para que la web funcione; otras, como las de analítica, solo se instalan si tú lo aceptas.</p>
+
+  <h2>2. Qué cookies usa esta web</h2>
+  <p class="before-table">Una cookie técnica propia, que no necesita consentimiento, y dos cookies de analítica de Google Analytics, que solo se instalan si pulsas «Aceptar».</p>
+  <CookieTable />
+  <p class="after-table">La duración indica cuánto permanece cada cookie en tu navegador si no la borras antes. El plazo de conservación de los datos en Google Analytics es otro y se explica en la <a href="/privacidad">política de privacidad</a>. Si retiras tu consentimiento, borramos las cookies _ga de tu navegador.</p>
+  <p>Las tipografías y el resto de recursos de la web se sirven desde nuestro propio dominio, sin cookies de terceros. Los datos de Google Analytics se tratan como explica la <a href="/privacidad">política de privacidad</a>, incluida su transferencia a Estados Unidos.</p>
+
+  <section id="configurar">
+    <h2>3. Cómo aceptar, rechazar o cambiar tu elección</h2>
+    <p class="snug">La primera vez que entras, un aviso te deja aceptar o rechazar la analítica con la misma facilidad. Hasta que decides, no se instala ninguna cookie de analítica.</p>
+    <p class="before-button">Puedes cambiar de opinión cuando quieras desde el enlace «Configurar cookies» del pie de cada página. Te volveremos a preguntar como máximo cada 12 meses. También puedes borrar las cookies desde la configuración de tu navegador.</p>
+    <noscript>
+      <p class="before-button">Tienes JavaScript desactivado. Mientras siga así, esta web no carga Google Analytics ni instala ninguna cookie de analítica, así que no hay nada que configurar. Para cambiar tu elección más adelante, activa JavaScript y vuelve a esta página.</p>
+    </noscript>
+    <a class="btn" href="/cookies#configurar" data-consent-open>Configurar cookies</a>
+  </section>
+
+  <h2>4. Más información</h2>
+  <p class="last">Para cualquier duda sobre esta política, escríbenos a <a href={`mailto:${EMAIL}`}>{EMAIL}</a>. Los datos del titular están en el <a href="/aviso-legal">aviso legal</a>.</p>
+</LegalLayout>
+<style>
+  .snug { margin-bottom: var(--space-4); }
+  .before-table { margin-bottom: var(--space-6); }
+  .before-button { margin-bottom: 28px; }
+  .after-table { margin-bottom: var(--space-4); }
+  .btn {
+    display: inline-block; margin-bottom: 56px; padding: 15px 24px; border-radius: var(--radius-md);
+    border: var(--hairline) solid var(--border-strong); color: var(--ink); text-decoration: none; font-weight: 500;
+  }
+</style>
