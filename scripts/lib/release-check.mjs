@@ -8,8 +8,12 @@ import { parse } from 'parse5';
 const PENDING = /\[[^\]\n]{2,}\]/g;
 /** Mismo criterio que CookieTable.astro (que hace trim antes). */
 const GA_ID = /^G-[A-Z0-9]{4,15}$/;
-/** Elementos que cortan el texto en bloques: un corchete no puede abarcar dos de ellos. */
-const INLINE = new Set('a abbr b bdi bdo cite code data del dfn em i ins kbd mark q s samp small span strong sub sup time u var wbr font tt big nobr'.split(' '));
+/** Lista cerrada de elementos de bloque: cortan el texto. Todo lo demás (desconocidos y custom elements incluidos) es en línea. */
+const BLOCK = new Set(
+  ('html head body title noscript template p div li dt dd h1 h2 h3 h4 h5 h6 section article header footer main nav aside table thead tbody tfoot tr td th caption ' +
+    'colgroup col blockquote pre figure figcaption form fieldset legend ul ol dl menu br hr address details summary select option optgroup textarea button ' +
+    'datalist iframe object video audio canvas meta link base hgroup search dialog').split(' '),
+);
 /** Elementos cuyo contenido no es texto visible. */
 const SKIP = new Set(['script', 'style']);
 /** Atributos que ve el visitante en cualquier elemento. */
@@ -27,14 +31,20 @@ const collapse = (s) =>
     .replace(/\s+/g, ' ')
     .trim();
 
+/** Profundidad máxima de documentos anidados (iframe srcdoc). */
+const MAX_SRCDOC_DEPTH = 3;
+
 /**
  * Textos que ve el visitante o indexa Google: texto por bloque (blancos colapsados), `<title>`, metas de
- * descripción/og/twitter y los atributos alt, title, placeholder, aria-label y value (input/button/option).
- * Cuentan `noscript`, `template`, `textarea` y `svg`; no cuentan `script`, `style`, comentarios, data-*, href, src, class ni id.
+ * descripción/og/twitter, los atributos alt, title, placeholder, aria-label y label (option/optgroup),
+ * `value` (input/button/option) y el `srcdoc` de los iframe (analizado igual, con límite de profundidad).
+ * Cuentan `noscript` (se lee como elementos: scriptingEnabled=false), `template`, `textarea` y `svg`;
+ * no cuentan `script`, `style`, comentarios, data-*, href, src, class ni id.
  * Un `<script>`/`<style>` sin cerrar se trata como texto (falla del lado seguro).
- * @param {string} html @returns {string[]}
+ * El recorrido es iterativo: un árbol muy profundo no agota la pila.
+ * @param {string} html @param {number} [depth] @returns {string[]}
  */
-export function visibleTextNodes(html) {
+export function visibleTextNodes(html, depth = 0) {
   /** @type {string[]} */
   const out = [];
   let buf = '';
@@ -48,35 +58,44 @@ export function visibleTextNodes(html) {
     const t = v ? collapse(v) : '';
     if (t) out.push(t);
   };
+  /** @type {any[]} */
+  const stack = [];
   /** @param {any} node */
-  const walk = (node) => {
-    for (const c of node.childNodes ?? []) {
-      if (c.nodeName === '#text') buf += c.value;
-      else if (c.nodeName === '#comment' || c.nodeName === '#documentType') continue;
-      else if (c.tagName) visit(c);
-    }
+  const pushChildren = (node) => {
+    const kids = node.childNodes ?? [];
+    for (let i = kids.length - 1; i >= 0; i--) stack.push(kids[i]);
   };
-  /** @param {any} el */
-  const visit = (el) => {
-    const tag = String(el.tagName).toLowerCase();
+  pushChildren(parse(html, { sourceCodeLocationInfo: true, scriptingEnabled: false }));
+  while (stack.length) {
+    const c = stack.pop();
+    if (c.closeBlock) {
+      flush();
+      continue;
+    }
+    if (c.nodeName === '#text') {
+      buf += c.value;
+      continue;
+    }
+    if (!c.tagName) continue; // comentarios y doctype
+    const tag = String(c.tagName).toLowerCase();
     /** @type {Record<string, string>} */
     const a = {};
-    for (const { name, value } of el.attrs ?? []) a[name] = value;
-    const inline = INLINE.has(tag);
-    if (!inline) flush();
+    for (const { name, value } of c.attrs ?? []) a[name] = value;
+    const block = BLOCK.has(tag);
+    if (block) flush();
     for (const n of ATTRS) add(a[n]);
+    if (['option', 'optgroup'].includes(tag)) add(a['label']);
     if (['input', 'button', 'option'].includes(tag) && a['type']?.toLowerCase() !== 'hidden') add(a['value']);
     if (tag === 'meta') {
       const name = (a['name'] ?? '').toLowerCase();
       const prop = (a['property'] ?? '').toLowerCase();
-      if (name === 'description' || name.startsWith('twitter:') || prop.startsWith('og:')) add(a['content']);
+      if (name === 'description' || name.startsWith('twitter:') || prop.startsWith('twitter:') || prop.startsWith('og:')) add(a['content']);
     }
-    if (SKIP.has(tag) && el.sourceCodeLocation?.endTag) return;
-    if (tag === 'template' && el.content) walk(el.content);
-    else walk(el);
-    if (!inline) flush();
-  };
-  walk(parse(html, { sourceCodeLocationInfo: true }));
+    if (tag === 'iframe' && a['srcdoc'] && depth < MAX_SRCDOC_DEPTH) out.push(...visibleTextNodes(a['srcdoc'], depth + 1));
+    if (SKIP.has(tag) && c.sourceCodeLocation?.endTag) continue;
+    if (block) stack.push({ closeBlock: true });
+    pushChildren(tag === 'template' && c.content ? c.content : c);
+  }
   flush();
   return out;
 }
@@ -91,7 +110,7 @@ function htmlFiles(dir) {
     .flatMap((n) => {
       const p = join(dir, n);
       if (statSync(p).isDirectory()) return htmlFiles(p);
-      return n.endsWith('.html') ? [p] : [];
+      return /\.html?$/i.test(n) ? [p] : [];
     });
 }
 

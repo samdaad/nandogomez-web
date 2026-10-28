@@ -66,6 +66,14 @@ describe('visibleTextNodes / findPendingInHtml', () => {
     expect(findPendingInHtml(page('<p>[] [a] [uno\ndos]</p>'))).toEqual(['[uno dos]']);
     expect(findPendingInHtml(page('<p>[uno</p><p>dos]</p>'))).toEqual([]);
   });
+  it('árbol de 30 000 niveles no agota la pila', () => {
+    expect(findPendingInHtml(page(`${'<span>'.repeat(30000)}[AA BB]`))).toEqual(['[AA BB]']);
+  });
+  it('srcdoc anidado se analiza con límite de profundidad (no cuelga)', () => {
+    let h = '<p>[HONDO PEND]</p>';
+    for (let i = 0; i < 6; i++) h = `<iframe srcdoc="${h.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"></iframe>`;
+    expect(() => findPendingInHtml(page(h))).not.toThrow();
+  });
   it('devuelve varios pendientes en orden', () => {
     expect(findPendingInHtml(page('<p>[UNO] texto</p><p>[DOS]</p>'))).toEqual(['[UNO]', '[DOS]']);
   });
@@ -83,11 +91,13 @@ describe('scanDist', () => {
       'sub/b.html': page('<p>ok</p><p>[REGISTRO X]</p>'),
       'c.html': page('<p>limpio</p>'),
       'notas.txt': '[ignorado]',
+      'z.HTM': page('<p>[MAYUS]</p>'),
     });
     const r = scanDist(d, { gaId: VALID_GA });
     expect(r.pending).toEqual([
       { page: 'a.html', text: '[FECHA]' },
       { page: 'sub/b.html', text: '[REGISTRO X]' },
+      { page: 'z.HTM', text: '[MAYUS]' },
     ]);
     expect(r.gaIdValid).toBe(true);
     expect(r.ok).toBe(false);
