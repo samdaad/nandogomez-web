@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EMAIL, SITE_URL } from '../../src/lib/site';
+import { EMAIL, SITE_URL, canonicalUrl } from '../../src/lib/site';
 
 describe('site', () => {
   it('SITE_URL es el origen canónico, sin barra final', () => {
@@ -8,5 +8,17 @@ describe('site', () => {
 
   it('EMAIL es la dirección de contacto del dominio', () => {
     expect(EMAIL).toBe('hola@nandogomez.com');
+  });
+});
+
+describe('canonicalUrl', () => {
+  it.each([
+    ['/', 'https://nandogomez.com/'],
+    ['/index.html', 'https://nandogomez.com/'],
+    ['/aviso-legal.html', 'https://nandogomez.com/aviso-legal'],
+    ['/aviso-legal', 'https://nandogomez.com/aviso-legal'],
+    ['/aviso-legal/', 'https://nandogomez.com/aviso-legal'],
+  ])('%s -> %s', (path, expected) => {
+    expect(canonicalUrl(path)).toBe(expected);
   });
 });
