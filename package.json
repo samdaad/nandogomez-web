@@ -4,11 +4,12 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/check-release.mjs",
     "preview": "astro preview",
     "typecheck": "astro check --minimumFailingSeverity warning",
     "test": "vitest run",
-    "test:dist": "vitest run -c vitest.dist.config.ts"
+    "test:dist": "vitest run -c vitest.dist.config.ts",
+    "check:release": "node scripts/check-release.mjs --strict"
   },
   "dependencies": {
     "@astrojs/check": "0.9.12",
