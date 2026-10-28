@@ -45,6 +45,10 @@ const gaId = getGaId();
 
   <p class="visually-hidden" role="status" aria-live="polite" data-consent-status></p>
 </div>
+<script>
+  import { initConsentUi } from '../lib/consent/consent-ui';
+  initConsentUi(document, window);
+</script>
 <style>
   [hidden] { display: none !important; }
   .banner {

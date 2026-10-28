@@ -21,7 +21,7 @@ function setup(o: Opts = {}) {
   const { url = 'https://nandogomez.com/', cookie = '', ga = ID, jar = 'normal', withMain = true } = o;
   const html = `<!doctype html><html><head></head><body><button id="outside">fuera</button>${markup(ga)}${withMain ? '<main id="main"><p>x</p></main>' : ''}<footer><a id="foot" href="/cookies#configurar" data-consent-open>Configurar cookies</a></footer></body></html>`;
   const dom = new JSDOM(html, { url });
-  const win = dom.window as unknown as Window & Record<string, unknown>;
+  const win = dom.window as unknown as Window & typeof globalThis & Record<string, unknown>;
   polyfillDialog(win);
   const doc = win.document;
   const store = new Map<string, string>();
@@ -232,11 +232,12 @@ describe('panel', () => {
     const t = setup({ cookie: valid('granted') });
     click(t.foot);
     expect(t.sw.getAttribute('aria-checked')).toBe('true');
+    t.sw.focus();
     click(t.sw);
     expect(t.sw.getAttribute('aria-checked')).toBe('false');
     click(t.sw);
     expect(t.sw.getAttribute('aria-checked')).toBe('true');
-    expect(t.doc.activeElement).not.toBe(t.q('#ng-consent-title'));
+    expect(t.doc.activeElement).toBe(t.sw);
   });
 
   it('Guardar selección con el switch activado: granted, cierra, carga GA y anuncia', () => {
