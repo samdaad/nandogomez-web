@@ -59,6 +59,9 @@ body {
 
 a { color: inherit; }
 
+/* El skip link enfoca <main tabindex="-1">: sin contorno en ninguna página. */
+main:focus { outline: none; }
+
 :focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;

@@ -30,6 +30,10 @@ describe('canonicalUrl', () => {
     ['\t//evil.com', 'https://nandogomez.com/evil.com'],
     ['/\n/evil.com', 'https://nandogomez.com/evil.com'],
     ['/\r\\evil.com', 'https://nandogomez.com/evil.com'],
+    ['/..//evil.com', 'https://nandogomez.com/evil.com'],
+    ['/a/..//evil.com', 'https://nandogomez.com/evil.com'],
+    ['/.//evil.com', 'https://nandogomez.com/evil.com'],
+    ['/a///b//c', 'https://nandogomez.com/a/b/c'],
   ])('%s -> %s', (path, expected) => {
     expect(canonicalUrl(path)).toBe(expected);
     expect(new URL(canonicalUrl(path)).host).toBe('nandogomez.com');
