@@ -4,17 +4,19 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/check-release.mjs",
     "preview": "astro preview",
     "typecheck": "astro check --minimumFailingSeverity warning",
     "test": "vitest run",
-    "test:dist": "vitest run -c vitest.dist.config.ts"
+    "test:dist": "vitest run -c vitest.dist.config.ts",
+    "check:release": "node scripts/check-release.mjs --strict"
   },
   "dependencies": {
     "@astrojs/check": "0.9.12",
     "@fontsource/geist": "5.3.0",
     "@fontsource/geist-mono": "5.3.0",
     "astro": "7.4.2",
+    "parse5": "8.0.1",
     "typescript": "6.0.3",
     "vitest": "5.0.5"
   },
