@@ -15,7 +15,10 @@ export function canonicalUrl(pathname: string): string {
     .replace(/\/index$/i, '');
   const url = new URL(path === '' ? '/' : path, SITE_URL);
   // `/..//evil.com` resuelve a `//evil.com`: se colapsan las barras repetidas.
-  return url.origin === SITE_URL ? `${SITE_URL}${url.pathname.replace(/\/{2,}/g, '/')}` : `${SITE_URL}/`;
+  if (url.origin !== SITE_URL) return `${SITE_URL}/`;
+  // Tras resolver y colapsar (`/a/b/..`, `/x//.html`) puede quedar una barra final: fuera, salvo en la raíz.
+  const clean = url.pathname.replace(/\/{2,}/g, '/').replace(/(.)\/$/, '$1');
+  return `${SITE_URL}${clean}`;
 }
 export const PHONE_DISPLAY = '+34 603 24 26 82';
 export const PHONE_HREF = 'tel:+34603242682';

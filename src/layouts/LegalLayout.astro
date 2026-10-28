@@ -4,15 +4,15 @@ import Header from '../components/Header.astro';
 import SectionLabel from '../components/SectionLabel.astro';
 import { LEGAL_UPDATED } from '../lib/legal';
 
-interface Props { title: string; description: string; heading: string }
-const { title, description, heading } = Astro.props;
+interface Props { title: string; description: string; heading: string; tight?: boolean }  // tight: 32px bajo la fecha (sigue un resumen)
+const { title, description, heading, tight = false } = Astro.props;
 ---
 <BaseLayout title={title} description={description}>
   <Header />
   <main id="main" tabindex="-1">
     <SectionLabel>/ legal</SectionLabel>
     <h1>{heading}</h1>
-    <p class="updated">Última actualización: {LEGAL_UPDATED}</p>
+    <p class:list={['updated', { tight }]}>Última actualización: {LEGAL_UPDATED}</p>
     <slot />
   </main>
 </BaseLayout>
@@ -20,6 +20,7 @@ const { title, description, heading } = Astro.props;
   main { max-width: 760px; margin: 0 auto; padding: 88px var(--space-6) var(--space-28); }
   main h1 { margin: 0 0 var(--space-4); font-size: clamp(40px, 5vw, 64px); font-weight: 600; letter-spacing: -0.04em; line-height: 1; overflow-wrap: anywhere; }
   main .updated { margin: 0 0 56px; font-family: var(--font-mono); font-size: 13px; color: var(--ink-muted); }
+  main .updated.tight { margin-bottom: 32px; }
   main h2 { margin: 0 0 var(--space-4); font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
   main p { margin: 0 0 56px; color: var(--ink-muted); }
   main p.intro { margin-bottom: 20px; }

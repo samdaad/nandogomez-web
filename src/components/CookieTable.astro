@@ -1,0 +1,35 @@
+---
+// Tabla de cookies. El nombre de `_ga_<ID>` sale del GA ID del build; sin ID válido queda `_ga_[ID]` (lo detecta check:release).
+const id = (import.meta.env.PUBLIC_GA_ID ?? '').trim();
+const gaSession = /^G-[A-Z0-9]{4,15}$/.test(id) ? `_ga_${id.slice(2)}` : '_ga_[ID]';
+const rows = [
+  { name: 'ng_consent', owner: 'Propia', type: 'Técnica', use: 'Recordar si has aceptado o rechazado la analítica.', ttl: '12 meses' },
+  { name: '_ga', owner: 'Google', type: 'Analítica', use: 'Distinguir a visitantes únicos de forma anónima.', ttl: '2 años (en tu navegador)' },
+  { name: gaSession, owner: 'Google', type: 'Analítica', use: 'Mantener el estado de la sesión de visita.', ttl: '2 años (en tu navegador)' },
+];
+---
+<div class="scroll" role="region" aria-label="Tabla de cookies, desplazable" tabindex="0">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Cookie</th><th scope="col">Titular</th><th scope="col">Tipo</th><th scope="col">Para qué sirve</th><th scope="col">Duración</th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((r) => (
+        <tr>
+          <td class="name">{r.name}</td><td>{r.owner}</td><td>{r.type}</td><td>{r.use}</td><td>{r.ttl}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+<style>
+  .scroll { overflow-x: auto; border: var(--hairline) solid var(--border); border-radius: var(--radius-lg); margin-bottom: var(--space-6); }
+  table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 15px; line-height: 1.5; }
+  thead tr { background: var(--surface); text-align: left; }
+  th { padding: 14px 18px; font-family: var(--font-mono); font-size: 13px; font-weight: 400; color: var(--ink-muted); }
+  tbody tr { border-top: var(--hairline) solid var(--border); }
+  td { padding: 14px 18px; color: var(--ink-muted); }
+  td.name { font-family: var(--font-mono); font-size: 14px; color: var(--ink); }
+</style>
