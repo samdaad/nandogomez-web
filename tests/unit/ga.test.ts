@@ -24,3 +24,13 @@ describe('getGaId', () => {
     expect(getGaId()).toBeNull();
   });
 });
+
+describe('una sola regex', () => {
+  it('CookieTable (fijada por adv-p3) y release-check usan la misma que ga.ts', async () => {
+    const { readFileSync } = await import('node:fs');
+    const re = '^G-[A-Z0-9]{4,15}$';
+    expect(readFileSync('src/components/CookieTable.astro', 'utf8')).toContain(`/${re}/`);
+    expect(readFileSync('scripts/lib/release-check.mjs', 'utf8')).toContain(`/${re}/`);
+    expect(readFileSync('src/lib/ga.ts', 'utf8')).toContain(`/${re}/`);
+  });
+});

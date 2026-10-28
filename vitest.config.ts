@@ -6,9 +6,9 @@ export default defineConfig({
     environment: 'node',
     coverage: {
       provider: 'v8',
-      include: ['src/lib/consent/**'],
+      include: ['src/lib/consent/**', 'src/lib/ga.ts'],
       reporter: ['text'],
-      thresholds: { lines: 95 },
+      thresholds: { lines: 95, perFile: true },
     },
   },
 });

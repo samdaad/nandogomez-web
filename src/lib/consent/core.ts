@@ -20,6 +20,7 @@ function cookiePairs(header: string): [string, string][] {
 
 /** `null` = sin decisión válida: falta, malformada, duplicada, de versión menor, caducada o con fecha futura. */
 export function parseConsent(cookieHeader: string, nowS: number, minVersion = CONSENT_VERSION): Consent | null {
+  if (!Number.isFinite(nowS)) return null;
   const found = cookiePairs(cookieHeader).filter(([name]) => name === CONSENT_COOKIE);
   if (found.length !== 1) return null;
   const m = VALUE_RE.exec(found[0]![1]);
@@ -33,7 +34,9 @@ export function parseConsent(cookieHeader: string, nowS: number, minVersion = CO
 }
 
 export function serializeConsent(analytics: boolean, nowS: number, opts: { secure: boolean }): string {
-  const value = `v${CONSENT_VERSION}.${analytics ? 'granted' : 'denied'}.${Math.floor(nowS)}`;
+  const s = Math.floor(nowS);
+  if (!Number.isFinite(s) || s < 1e9 || s >= 1e10) throw new RangeError('serializeConsent espera segundos (10 cifras)');
+  const value = `v${CONSENT_VERSION}.${analytics ? 'granted' : 'denied'}.${s}`;
   return `${CONSENT_COOKIE}=${value}; Path=/; Max-Age=${CONSENT_MAX_AGE_S}; SameSite=Lax${opts.secure ? '; Secure' : ''}`;
 }
 
