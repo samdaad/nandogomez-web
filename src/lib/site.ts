@@ -1,5 +1,7 @@
 export const SITE_URL = 'https://nandogomez.com';
 export const EMAIL = 'hola@nandogomez.com';
+export const TWOFERS = 'https://twofers.es';
+export const LINKEDIN = 'https://www.linkedin.com/in/nandogomez/';
 // Debe coincidir con el token `bg` (lo comprueba tests/unit/tokens.test.ts).
 export const THEME_COLOR = '#0e0f11';
 

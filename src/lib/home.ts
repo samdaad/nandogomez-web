@@ -8,8 +8,8 @@ export const NAV = [
   { id: 'twofers', label: 'Digital Twofers' },
 ] as const;
 
-/** Secciones que existen hoy en la home. P9 añade metodo, sobre-mi, twofers y contacto. */
-export const SECTIONS: readonly string[] = ['inicio', 'servicios'];
+/** Secciones de la home, en orden. Un test exige que coincidan con las `section[id]` reales. */
+export const SECTIONS: readonly string[] = ['inicio', 'servicios', 'metodo', 'sobre-mi', 'clientes', 'twofers', 'contacto'];
 
 /** Solo enlaza a anclas que existen: A7 exige que cada `#id` resuelva. */
 export const navFor = (present: readonly string[]): (typeof NAV)[number][] =>
