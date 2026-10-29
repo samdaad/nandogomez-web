@@ -399,7 +399,7 @@ gh pr create --base main --head feat/web-inicial --title "docs: plan de la web y
   2. *Administrar → Recogida y conservación de datos → Conservación de datos* = **14 meses**. El valor por defecto son 2.
   3. Desactiva las señales de Google y la personalización de anuncios.
   4. Define `PUBLIC_GA_ID=G-…` en Cloudflare **solo en Production**. Preview queda sin ID para no contaminar los datos.
-  5. Opcional: crea la *Repository variable* `PUBLIC_GA_ID` en GitHub, solo para que el aviso de CI salga en verde.
+  5. No crees la variable `PUBLIC_GA_ID` en GitHub: la CI no la lee (ver §9.1).
 - **M7. Pendientes legales.** Rellena en `src/lib/legal.ts` la fecha y los datos del Registro Mercantil, en un PR de contenido. Antes, verifica el texto de §10.1 contra la ayuda oficial de Google sobre conservación de datos de GA4.
 - **M8. Email Routing.** Necesita M3. *Email → Email Routing*: `hola@nandogomez.com` → tu Gmail. Verifica el destino y acepta los MX y el SPF.
 - **M9. Antes de apuntar el dominio.**
@@ -433,8 +433,6 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      PUBLIC_GA_ID: ${{ vars.PUBLIC_GA_ID }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -464,7 +462,7 @@ jobs:
 ```
 **Puerta dura:** typecheck, unidad, build, dist y e2e. **Informativos:** lint y `check:release`.
 
-El e2e no depende de `vars.PUBLIC_GA_ID`: Playwright hace su propio build con `G-TEST1234` en `dist-e2e/`. Con `--if-present` y `hashFiles`, este fichero no necesita más cambios.
+El job no define `PUBLIC_GA_ID` (enmienda de P11): la CI debe ser determinista y no depender de la configuración de producción, cuyo ID real vive solo en el entorno Production de Cloudflare. Con la variable puesta, los tests que asumen un build sin ID (`getGaId()` nulo, sin `data-ga-id`) fallaban. Por eso `check:release` avisará siempre en CI, que es informativo. El e2e hace su propio build con `G-TEST1234` en `dist-e2e/`. Con `--if-present` y `hashFiles`, este fichero no necesita más cambios.
 
 ## 10. Incoherencias de contenido: correcciones propuestas (las aprueba Nando)
 

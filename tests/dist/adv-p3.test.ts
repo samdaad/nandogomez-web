@@ -55,6 +55,13 @@ describe('P3 adv · /cookies frente al diseño y §10.1', () => {
     const ns = cookies!.doc.querySelector('main noscript');
     const btn = [...main.querySelectorAll('a')].find((a) => norm(a.textContent) === 'Configurar cookies')!;
     btn.before(d.createTextNode(ns?.textContent ?? ''));
+    // `_ga_[ID]` del diseño: con un GA ID válido en el build la tabla muestra `_ga_<ID sin «G-»>` (A2/A17).
+    // Se deduce del propio HTML (data-ga-id), no del entorno: dist/ puede venir de un build con o sin ID.
+    const gaId = cookies!.doc.querySelector('#ng-consent')?.getAttribute('data-ga-id') ?? null;
+    if (gaId !== null) expect(gaId).toMatch(/^G-[A-Z0-9]{4,15}$/);
+    const session = [...main.querySelectorAll('tbody tr td:first-child')].filter((td) => norm(td.textContent) === '_ga_[ID]');
+    expect(session).toHaveLength(1);
+    if (gaId) session[0]!.textContent = `_ga_${gaId.slice(2)}`;
     expect(flat(cookies!.doc.querySelector('main')?.textContent)).toBe(flat(main.textContent));
   });
 

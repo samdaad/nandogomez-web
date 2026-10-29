@@ -80,10 +80,6 @@ describe.each(all.map((p) => ({ ...p, name: p.file.split('/').pop()! })))('conse
     expect(st?.textContent?.trim()).toBe('');
   });
 
-  it('sin GA ID en este build no hay data-ga-id', () => {
-    expect(doc.querySelector('#ng-consent')?.hasAttribute('data-ga-id')).toBe(false);
-  });
-
   it('solo un botón lima visible a la vez: el banner no contiene «Guardar»', () => {
     expect(banner?.querySelector('[data-consent-action=save]')).toBeNull();
   });
@@ -94,11 +90,12 @@ describe('A2 · data-ga-id con PUBLIC_GA_ID válido (build temporal)', () => {
   afterAll(() => rmSync(out, { recursive: true, force: true }));
 
   it.each([
+    ['', null],
     ['G-TEST1234', 'G-TEST1234'],
     ['  G-TEST1234 ', 'G-TEST1234'],
     ['no-valido', null],
   ])('PUBLIC_GA_ID=%j → data-ga-id=%j en todas las páginas', (id, expected) => {
-    const dir = join(out, String(id).trim().replace(/\W/g, '_'));
+    const dir = join(out, String(id).trim().replace(/\W/g, '_') || 'vacio');
     execFileSync('npx', ['astro', 'build', '--outDir', dir], {
       cwd: join(import.meta.dirname, '../..'),
       env: { ...process.env, PUBLIC_GA_ID: id },
@@ -109,6 +106,7 @@ describe('A2 · data-ga-id con PUBLIC_GA_ID válido (build temporal)', () => {
     for (const f of files) {
       const el = new JSDOM(readFileSync(join(dir, f), 'utf8')).window.document.querySelector('#ng-consent');
       expect(el?.getAttribute('data-ga-id'), f).toBe(expected);
+      if (expected === null) expect(el?.hasAttribute('data-ga-id'), f).toBe(false);
     }
   });
 });
