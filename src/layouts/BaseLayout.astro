@@ -1,8 +1,10 @@
 ---
+import { getImage } from 'astro:assets';
 import '../styles/global.css';
+import retrato from '../assets/nando-retrato.webp';
 import ConsentManager from '../components/ConsentManager.astro';
 import Footer from '../components/Footer.astro';
-import { THEME_COLOR, canonicalUrl } from '../lib/site';
+import { SITE_URL, THEME_COLOR, canonicalUrl } from '../lib/site';
 
 interface Props {
   title: string;
@@ -11,6 +13,8 @@ interface Props {
 }
 
 const { title, description, canonical } = Astro.props;
+const og = await getImage({ src: retrato, width: 800, format: 'webp' });
+const ogImage = new URL(og.src, SITE_URL).href;
 const href = canonical === undefined ? canonicalUrl(Astro.url.pathname) : canonical;
 ---
 <html lang="es">
@@ -20,8 +24,18 @@ const href = canonical === undefined ? canonicalUrl(Astro.url.pathname) : canoni
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content={THEME_COLOR} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     {href && <link rel="canonical" href={href} />}
     {href && <meta property="og:url" content={href} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:site_name" content="Nando Gómez" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content="Nando Gómez impartiendo una formación en un escenario" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image" content={ogImage} />
   </head>
   <body>
     <a class="skip-link" href="#main">Saltar al contenido</a>
