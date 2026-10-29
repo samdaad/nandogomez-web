@@ -108,3 +108,124 @@ describe('P8 · movimiento y 320 px (§5)', () => {
     expect(rule).toMatch(/overflow-wrap\s*:\s*anywhere/);
   });
 });
+
+const TWOFERS_URL = 'https://twofers.es';
+const LINKEDIN_URL = 'https://www.linkedin.com/in/nandogomez/';
+const external = (root: ParentNode): Element[] => [...root.querySelectorAll('a[href^="http"]')];
+
+describe('P9 · estructura y nav', () => {
+  it('main contiene, en orden, las 7 secciones de la home', () => {
+    expect([...doc.querySelectorAll('main > section')].map((s) => s.id)).toEqual(['inicio', 'servicios', 'metodo', 'sobre-mi', 'clientes', 'twofers', 'contacto']);
+  });
+  it('la nav enlaza las 4 anclas del diseño y «Contactar» y «Hablemos» van a #contacto', () => {
+    const hrefs = [...$('header nav')!.querySelectorAll('a')].map((a) => a.getAttribute('href'));
+    expect(hrefs).toEqual(['#servicios', '#metodo', '#sobre-mi', '#twofers', '#contacto']);
+    expect($('#inicio a.btn--primary')?.getAttribute('href')).toBe('#contacto');
+  });
+});
+
+describe('P9 · #metodo', () => {
+  const s = $('section#metodo')!;
+  it('h2 con la parte atenuada en un span', () => {
+    expect(text(s.querySelector('h2'))).toBe('Primero entiendo cómo trabajas. La tecnología viene después.');
+    expect(text(s.querySelector('h2 span'))).toBe('La tecnología viene después.');
+  });
+  it('4 pasos en una lista ordenada, con número mono', () => {
+    const items = [...s.querySelectorAll('ol > li')];
+    expect(items.map((li) => text(li.querySelector('.num')))).toEqual(['01 — Escuchar', '02 — Diagnosticar', '03 — Implantar', '04 — Formar']);
+    for (const li of items) expect(text(li.querySelector('p:not(.num)')).length).toBeGreaterThan(50);
+  });
+});
+
+describe('P9 · #sobre-mi', () => {
+  const s = $('section#sobre-mi')!;
+  it('etiqueta, frase destacada, trayectoria y filas Formación / Dirección', () => {
+    expect(text(s.querySelector('h2'))).toBe('/ sobre mí');
+    expect(text(s)).toContain('Explicar bien la tecnología es tan importante como construirla.');
+    expect(text(s)).toContain('Durante más de 26 años dirigí el departamento de Tecnologías de la Información');
+    expect(text(s)).toContain('Trabajo desde Barcelona con empresas de toda España.');
+    expect([...s.querySelectorAll('dt')].map(text)).toEqual(['Formación', 'Dirección']);
+    expect(text(s.querySelectorAll('dd')[1])).toBe('Programa Superior en Administración y Dirección de Empresas (PDAE) · EAE Business School');
+  });
+});
+
+describe('P9 · franja de clientes', () => {
+  const s = $('section#clientes')!;
+  const order = [...doc.querySelectorAll('main > section')].map((x) => x.id);
+  it('va entre #sobre-mi y #twofers, con título y SectionLabel', () => {
+    expect(order.indexOf('clientes')).toBe(order.indexOf('sobre-mi') + 1);
+    expect(text(s.querySelector('h2'))).toBe('Empresas con las que he trabajado');
+    expect(text(s.querySelector('.label'))).toBe('/ han confiado en mí');
+  });
+  it('lista semántica con exactamente los 6 nombres, solo texto y sin enlaces', () => {
+    expect([...s.querySelectorAll('ul > li')].map(text)).toEqual(['Deor Consultores', 'OK Humedades', 'Learn2Be', 'Vil·la Minerva', 'Miquel Pares', 'RG Compact']);
+    expect(s.querySelectorAll('li')).toHaveLength(6);
+    expect(s.querySelector('a, img, svg')).toBeNull();
+    expect(text(s.querySelectorAll('li')[3])).toContain('\u00B7');
+  });
+});
+
+describe('P9 · #twofers', () => {
+  const s = $('section#twofers')!;
+  it('bloque Digital Twofers sin la frase de clientes', () => {
+    expect(text(s.querySelector('h2'))).toBe('Digital Twofers');
+    expect(text(s)).toContain('Cuando hay que construir, lo hacemos en Digital Twofers, mi empresa');
+    expect(text(s)).not.toMatch(/producción|OK Humedades|RG Compact|DEOR/i);
+  });
+  it('enlace a twofers.es, seguro y con flecha decorativa', () => {
+    const a = s.querySelector('a')!;
+    expect(a.getAttribute('href')).toBe(TWOFERS_URL);
+    expect(a.getAttribute('rel')).toBe('noopener noreferrer');
+    expect(text(a)).toBe('twofers.es ↗');
+  });
+});
+
+describe('P9 · #contacto', () => {
+  const s = $('section#contacto')!;
+  it('h2, entradilla del diseño y sin cifras', () => {
+    expect(text(s.querySelector('h2'))).toBe('Cuéntame qué quieres resolver.');
+    expect(text(s)).toContain('Te respondo yo, personalmente.');
+    expect(text(s)).not.toMatch(/\d/);
+  });
+  it('«Escríbeme» lima a mailto y LinkedIn secundario seguro', () => {
+    const w = s.querySelector('a.btn--primary')!;
+    expect(text(w)).toBe('Escríbeme');
+    expect(w.getAttribute('href')).toBe('mailto:hola@nandogomez.com');
+    const l = [...s.querySelectorAll('a.btn--secondary')].find((a) => text(a).startsWith('LinkedIn'))!;
+    expect(l.getAttribute('href')).toBe(LINKEDIN_URL);
+    expect(l.getAttribute('rel')).toBe('noopener noreferrer');
+    expect(text(l)).toBe('LinkedIn ↗');
+  });
+});
+
+describe('P9 · enlaces externos y accesibilidad', () => {
+  it('los únicos destinos externos de la home son twofers.es y LinkedIn', () => {
+    expect(external(doc).map((a) => a.getAttribute('href')).sort()).toEqual([LINKEDIN_URL, TWOFERS_URL]);
+    for (const a of external(doc)) expect(a.getAttribute('rel')).toBe('noopener noreferrer');
+  });
+  it('●, → y ↗ decorativos van en un elemento aria-hidden', () => {
+    const marks = [...doc.querySelectorAll('main *')].filter((e) => e.children.length === 0 && /^[●→↗]$/.test(text(e)));
+    expect(marks.map(text).sort()).toEqual(['↗', '↗', '→', '●']);
+    for (const m of marks) expect(m.getAttribute('aria-hidden'), m.outerHTML).toBe('true');
+  });
+  it('un solo .btn--primary por sección y por cabecera', () => {
+    for (const c of doc.querySelectorAll('header, section')) expect(c.querySelectorAll('.btn--primary').length).toBeLessThanOrEqual(1);
+  });
+});
+
+describe('P9 · retrato y :hover (notas del adversario de P8)', () => {
+  it('sizes refleja el CSS real: ~280 px junto al texto (≥1012 px) y min(380px, 100vw − 70px) debajo', () => {
+    const img = $('#inicio picture img')!;
+    expect(img.getAttribute('sizes')).toBe('(min-width: 1012px) 280px, min(380px, calc(100vw - 70px))');
+    expect($('#inicio picture source')!.getAttribute('sizes')).toBe(img.getAttribute('sizes'));
+  });
+  const css = distFiles().filter((f) => f.endsWith('.css')).map(read).join('\n');
+  const hover = [...css.matchAll(/([^{}]+:hover[^{}]*)\{([^{}]*)\}/g)].map((m) => ({ sel: m[1]!, body: m[2]! }));
+  it('botón secundario y enlaces de la nav tienen :hover con tokens', () => {
+    const sec = hover.find((r) => /btn--secondary/.test(r.sel));
+    const nav = hover.find((r) => /nav/.test(r.sel) && /\ba\b|>a|> a/.test(r.sel));
+    expect(sec?.body).toMatch(/border-color:var\(--ink-muted\)/);
+    expect(nav?.body).toMatch(/color:var\(--ink\)/);
+    for (const r of hover) expect(r.body, r.sel).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+  });
+});
