@@ -76,6 +76,25 @@ describe('dist · /privacidad (P2b)', () => {
     expect(li[1]).toContain('Google');
   });
 
+  it('el responsable es la persona física, con NIF válido y sin DPO', () => {
+    const h = [...page!.doc.querySelectorAll('main h2')][0]!;
+    const p = h.nextElementSibling!.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+    expect(p).toContain('Fernando Gómez Margiotta (NIF 45496623R), con domicilio en Moratín 31-33, 08302 Mataró (Barcelona).');
+    expect(p).toContain('hola@nandogomez.com');
+    expect(p).toContain('No tenemos designado delegado de protección de datos.');
+    const nif = '45496623R';
+    expect(nif[8]).toBe('TRWAGMYFPDXBNJZSQVHLCKE'[Number(nif.slice(0, 8)) % 23]);
+  });
+
+  it('Digital Twofers solo aparece como responsable de la relación comercial, no de la web', () => {
+    const h = [...page!.doc.querySelectorAll('main h2')][0]!;
+    const p = h.nextElementSibling!.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+    expect(p.startsWith('Fernando Gómez Margiotta')).toBe(true);
+    expect(p).toContain('Si llegas a contratar servicios, los datos de la relación comercial los trata Digital Twofers, S.L. (NIF B16988479) como responsable, que te informará en ese momento.');
+    expect(page!.doc.body.textContent ?? '').not.toContain('La Riera');
+    expect((page!.doc.body.textContent ?? '').match(/Twofers/g)).toHaveLength(1);
+  });
+
   it('A8: pie completo y main con tabindex', () => {
     const d = page!.doc;
     const f = d.querySelector('footer')!;
