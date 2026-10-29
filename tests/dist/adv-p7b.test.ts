@@ -1,29 +1,33 @@
 // Adversario P7b: ejecuta el JS REAL de dist/_astro (no el fuente) sobre el HTML real de cada página,
-// en jsdom con tarro de cookies real. Build temporal con PUBLIC_GA_ID=G-TEST1234 (§6, A2, A6, A8).
+// en jsdom con tarro de cookies real. Builds temporales con PUBLIC_GA_ID=G-TEST1234 y con PUBLIC_GA_ID=''
+// (§6, A2, A6, A8): no dependen del PUBLIC_GA_ID del entorno ni de cómo se construyó dist/.
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { CookieJar, JSDOM } from 'jsdom';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { polyfillDialog, pressEscape } from '../setup/dialog';
-import { DIST } from './helpers';
 
 const ID = 'G-TEST1234';
 const PAGES = ['index', 'aviso-legal', 'privacidad', 'cookies', '404'];
 const ROUTE: Record<string, string> = { index: '/', '404': '/no-existe' };
 type Win = Window & typeof globalThis & Record<string, unknown>;
 
+let tmp = '';
 let out = '';
+let outNoId = '';
+const build = (dir: string, id: string) =>
+  execFileSync('npx', ['astro', 'build', '--outDir', dir], { stdio: 'pipe', env: { ...process.env, PUBLIC_GA_ID: id } });
 beforeAll(() => {
-  out = mkdtempSync(join(tmpdir(), 'ng-adv-p7b-'));
-  execFileSync('npx', ['astro', 'build', '--outDir', out], {
-    stdio: 'pipe',
-    env: { ...process.env, PUBLIC_GA_ID: ID },
-  });
-}, 180_000);
+  tmp = mkdtempSync(join(tmpdir(), 'ng-adv-p7b-'));
+  out = join(tmp, 'con-id');
+  outNoId = join(tmp, 'sin-id');
+  build(out, ID);
+  build(outNoId, '');
+}, 300_000);
 afterAll(() => {
-  if (out) rmSync(out, { recursive: true, force: true });
+  if (tmp) rmSync(tmp, { recursive: true, force: true });
 });
 
 function boot(dir: string, name: string, jar = new CookieJar()) {
@@ -95,8 +99,8 @@ describe.each(PAGES)('adv P7b · bundle real en %s.html (build con GA ID)', (nam
 });
 
 describe('adv P7b · bundle real del build sin GA ID', () => {
-  it.runIf(existsSync(join(DIST, 'index.html')))('Aceptar guarda la elección pero no toca Google', () => {
-    const t = boot(DIST, 'index');
+  it('Aceptar guarda la elección pero no toca Google', () => {
+    const t = boot(outNoId, 'index');
     expect(t.q('#ng-consent').hasAttribute('data-ga-id')).toBe(false);
     click(t.btn('#ng-consent-banner', 'accept'));
     expect(t.cookie()).toMatch(/^ng_consent=v1\.granted\.\d{10}$/);
