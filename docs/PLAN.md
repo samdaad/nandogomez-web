@@ -86,7 +86,7 @@ src/
   styles/tokens.css             24 tokens + familias + extensiones locales
   styles/global.css             reset, imports fontsource, tipografía, .visually-hidden, :focus-visible
   lib/site.ts                   SITE_URL, EMAIL, LINKEDIN, TWOFERS, AEPD, THEME_COLOR, canonicalUrl()
-  lib/legal.ts                  LEGAL_UPDATED, REGISTRO_MERCANTIL (los pendientes, en un solo sitio)
+  lib/legal.ts                  LEGAL_UPDATED (el pendiente de fecha, en un solo sitio)
   lib/ga.ts                     getGaId(): string|null
   lib/consent/core.ts           lógica pura de la cookie
   lib/consent/state.ts          reductor puro de la UI
@@ -400,7 +400,7 @@ gh pr create --base main --head feat/web-inicial --title "docs: plan de la web y
   3. Desactiva las señales de Google y la personalización de anuncios.
   4. Define `PUBLIC_GA_ID=G-…` en Cloudflare **solo en Production**. Preview queda sin ID para no contaminar los datos.
   5. No crees la variable `PUBLIC_GA_ID` en GitHub: la CI no la lee (ver §9.1).
-- **M7. Pendientes legales.** Rellena en `src/lib/legal.ts` la fecha y los datos del Registro Mercantil, en un PR de contenido. Antes, verifica el texto de §10.1 contra la ayuda oficial de Google sobre conservación de datos de GA4.
+- **M7. Pendientes legales.** Rellena en `src/lib/legal.ts` la fecha de publicación, en un PR de contenido. Antes, verifica el texto de §10.1 contra la ayuda oficial de Google sobre conservación de datos de GA4.
 - **M8. Email Routing.** Necesita M3. *Email → Email Routing*: `hola@nandogomez.com` → tu Gmail. Verifica el destino y acepta los MX y el SPF.
 - **M9. Antes de apuntar el dominio.**
   1. Define `RELEASE_STRICT=1` solo en Production y haz un redeploy, que debe pasar.
@@ -485,6 +485,7 @@ El job no define `PUBLIC_GA_ID` (enmienda de P11): la CI debe ser determinista y
 - Los clientes van en una **franja propia entre #sobre-mi y #twofers con id #clientes**: 7 secciones en la home y 3 destinos externos.
 - El **banner de cookies va abajo a la derecha** (no a la izquierda) para no tapar el botón «Hablemos» del hero. En móvil estrecho ocupa el ancho con márgenes laterales; a partir de ~600 px se ancla a la derecha con el mismo margen.
 - **El pie no lleva correo**: se queda como está.
+- **29/10/2026: no se publican los datos del Registro Mercantil** (decisión de Nando, informado del art. 10 LSSI). El aviso legal queda con 6 filas y `lib/legal.ts` ya no exporta `REGISTRO_MERCANTIL`.
 
 **Otras observaciones (no bloquean):**
 - Incorporar `--border-control` y `--overlay` a `tokens.json`.
