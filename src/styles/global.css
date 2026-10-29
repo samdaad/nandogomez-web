@@ -104,3 +104,7 @@ main:focus { outline: none; }
   line-height: 1.4;
   text-decoration: none;
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}

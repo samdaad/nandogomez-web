@@ -1,11 +1,24 @@
 ---
+import Button from './Button.astro';
+import { SECTIONS, contactHref, navFor } from '../lib/home';
+
+interface Props { variant?: 'home' | 'legal'; present?: readonly string[] }
+const { variant = 'legal', present = SECTIONS } = Astro.props;
+const home = variant === 'home';
 ---
-<header>
-  <a class="brand" href="/">
+<header class:list={{ home }}>
+  <a class="brand" href={home ? '#inicio' : '/'}>
     <span class="mark" aria-hidden="true">NG</span>
     Nando Gómez
   </a>
-  <a class="back" href="/">&larr; Volver a la web</a>
+  {home ? (
+    <nav aria-label="Principal">
+      {navFor(present).map((n) => <a href={`#${n.id}`}>{n.label}</a>)}
+      <Button href={contactHref(present)} size="sm">Contactar</Button>
+    </nav>
+  ) : (
+    <a class="back" href="/">&larr; Volver a la web</a>
+  )}
 </header>
 <style>
   header {
@@ -13,10 +26,13 @@
     display: flex; flex-wrap: wrap; gap: var(--space-4) 40px; align-items: center; justify-content: space-between;
     border-bottom: var(--hairline) solid var(--divider);
   }
+  header.home { border-bottom: 0; }
   .brand { display: flex; align-items: center; gap: var(--space-3); text-decoration: none; font-weight: 600; letter-spacing: -0.01em; }
   .mark {
     width: 32px; height: 32px; border-radius: var(--radius-sm); border: var(--hairline) solid var(--border-strong);
     display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 13px; color: var(--lime);
   }
   .back { color: var(--ink-muted); text-decoration: none; font-size: 15px; padding: var(--space-3) 0; }
+  nav { display: flex; flex-wrap: wrap; gap: var(--space-2) 28px; align-items: center; font-size: 15px; }
+  nav > a { color: var(--ink-muted); text-decoration: none; padding: var(--space-3) 0; }
 </style>

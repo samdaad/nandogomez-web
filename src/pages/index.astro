@@ -1,8 +1,59 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Button from '../components/Button.astro';
+import Portrait from '../components/Portrait.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import { SECTIONS, contactHref } from '../lib/home';
+
+const contact = contactHref(SECTIONS);
+const svg = { width: 28, height: 28, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' } as const;
 ---
-<BaseLayout title="Nando Gómez" description="Nando Gómez, consultor tecnológico.">
+<BaseLayout title="Nando Gómez — Consultor tecnológico" description="Consultoría, formación y asesoría tecnológica para pymes: IA y herramientas digitales, sin humo.">
+  <Header variant="home" />
   <main id="main" tabindex="-1">
-    <h1>Nando Gómez</h1>
+    <section id="inicio">
+      <div class="copy">
+        <p class="kicker"><span class="dot">●</span>&nbsp; CONSULTORÍA · FORMACIÓN · ASESORÍA</p>
+        <h1>Ayudo a empresas a entender, elegir y usar la tecnología <span>sin humo.</span></h1>
+        <p class="lede">Soy consultor y formador tecnológico. Ayudo a pymes a trabajar mejor con IA y herramientas digitales: un diagnóstico honesto, soluciones a su medida y formación para que las usen de verdad.</p>
+        <div class="actions">
+          <Button href={contact} variant="primary">Hablemos</Button>
+          <Button href="#servicios">Qué hago &rarr;</Button>
+        </div>
+      </div>
+      <Portrait />
+    </section>
+    <section id="servicios">
+      <SectionLabel as="h2">/ servicios</SectionLabel>
+      <div class="cards">
+        <ServiceCard title="Consultoría tecnológica">
+          <svg slot="icon" {...svg}><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+          Analizo cómo trabaja tu empresa y dónde la tecnología te ahorra tiempo o te trae clientes: IA aplicada, automatización de procesos, herramientas que por fin se hablan entre sí. Te digo qué hacer, en qué orden y qué no merece la pena.
+        </ServiceCard>
+        <ServiceCard title="Formación">
+          <svg slot="icon" {...svg}><path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M7 9v5c0 1.5 2.5 3 5 3s5-1.5 5-3V9" /></svg>
+          Cursos y talleres prácticos para equipos y profesionales: IA en el día a día, automatización y herramientas digitales. Trabajamos con casos de tu sector, para que al día siguiente ya lo estés aplicando.
+        </ServiceCard>
+        <ServiceCard title="Asesoría a empresas">
+          <svg slot="icon" {...svg}><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>
+          Acompañamiento continuado a dirección: decidir inversiones tecnológicas, elegir y coordinar proveedores y llevar los proyectos hasta que funcionan. Criterio técnico de confianza, sin tener que fichar a un director de tecnología.
+        </ServiceCard>
+      </div>
+    </section>
   </main>
 </BaseLayout>
+<style>
+  section { max-width: var(--content-max); margin: 0 auto; padding: 0 var(--space-6); }
+  #inicio { padding-block: 104px; display: flex; flex-wrap: wrap; gap: 56px 64px; align-items: flex-end; }
+  .copy { flex: 999 1 600px; min-width: 0; }
+  .kicker { margin: 0 0 var(--space-8); font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.06em; color: var(--ink-muted); }
+  .dot { color: var(--lime); }
+  h1 { margin: 0; font-size: clamp(48px, 6.4vw, 96px); font-weight: 600; line-height: 0.98; letter-spacing: -0.045em; overflow-wrap: anywhere; }
+  h1 span { color: var(--ink-subtle); }
+  .lede { margin: 40px 0 0; max-width: 580px; font-size: 19px; color: var(--ink-muted); }
+  .actions { margin-top: 36px; display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  #servicios { padding-block: var(--space-8) var(--space-28); }
+  .cards { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+</style>
