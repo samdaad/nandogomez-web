@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { LEGAL_UPDATED, REGISTRO_MERCANTIL } from '../../src/lib/legal';
+import * as legal from '../../src/lib/legal';
 
 describe('legal (pendientes en un solo sitio)', () => {
-  it('siguen como marcadores entre corchetes hasta que Nando aporte los datos', () => {
-    expect(LEGAL_UPDATED).toBe('[FECHA DE PUBLICACIÓN]');
-    expect(registroOk(REGISTRO_MERCANTIL)).toBe(true);
+  it('la fecha sigue como marcador entre corchetes hasta el día de publicación', () => {
+    expect(legal.LEGAL_UPDATED).toBe('[FECHA DE PUBLICACIÓN]');
+  });
+
+  it('ya no exporta REGISTRO_MERCANTIL (decisión de Nando, 29/10/2026)', () => {
+    expect(Object.keys(legal)).toEqual(['LEGAL_UPDATED']);
+    expect('REGISTRO_MERCANTIL' in legal).toBe(false);
   });
 });
-
-function registroOk(s: string): boolean {
-  return /^\[Registro Mercantil de Barcelona[^\]]*\]$/.test(s);
-}

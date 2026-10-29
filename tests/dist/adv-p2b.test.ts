@@ -149,11 +149,11 @@ describe('P2b adv · estructura y a11y de /privacidad', () => {
 });
 
 describe('P2b adv · la variante card no altera /aviso-legal y main:focus es lo único sin contorno', () => {
-  it('/aviso-legal sigue con un único dl de 7 filas div > dt + dd, sin clase card', () => {
+  it('/aviso-legal sigue con un único dl de 6 filas div > dt + dd, sin clase card', () => {
     const dls = aviso!.doc.querySelectorAll('main dl');
     expect(dls).toHaveLength(1);
     expect(dls[0]!.classList.contains('card')).toBe(false);
-    expect(dls[0]!.children).toHaveLength(7);
+    expect(dls[0]!.children).toHaveLength(6);
     for (const c of dls[0]!.children) expect([...c.children].map((x) => x.tagName)).toEqual(['DT', 'DD']);
   });
 
