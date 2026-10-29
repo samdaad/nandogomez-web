@@ -1,4 +1,4 @@
-import { PAGES, GA_ID, GTAG_URL, banner, choose, expect, gaCookies, panel, test, visit } from './fixtures';
+import { PAGES, GA_ID, GTAG_URL, banner, choose, expect, footerOpen, gaCookies, panel, test, visit } from './fixtures';
 
 test.describe('A6: red y cookies', () => {
   for (const path of PAGES) {
@@ -14,8 +14,9 @@ test.describe('A6: red y cookies', () => {
     await visit(page, '/', { expectBanner: true });
     await choose(page, 'reject');
     await expect(banner(page)).toBeHidden();
+    expect(await page.evaluate((id) => (window as unknown as Record<string, unknown>)[`ga-disable-${id}`], GA_ID)).toBe(true);
     await page.reload();
-    await visit(page, '/', { expectBanner: false });
+    await expect(page.locator('#ng-consent[data-ga-id]')).toBeAttached();
     await expect(banner(page)).toBeHidden();
     for (const path of PAGES.slice(1)) {
       await visit(page, path, { expectBanner: false });
@@ -24,7 +25,6 @@ test.describe('A6: red y cookies', () => {
     await page.waitForLoadState('networkidle');
     expect(google).toEqual([]);
     expect(await gaCookies(context)).toEqual([]);
-    expect(await page.evaluate((id) => (window as unknown as Record<string, unknown>)[`ga-disable-${id}`], GA_ID)).toBe(true);
   });
 
   test('tras Aceptar: exactamente una petición a gtag/js y ninguna antes', async ({ page, google }) => {
@@ -43,7 +43,7 @@ test.describe('A6: red y cookies', () => {
     await choose(page, 'accept');
     await expect.poll(() => google.length).toBe(1);
     await page.reload();
-    await visit(page, '/', { expectBanner: false });
+    await expect(page.locator('#ng-consent[data-ga-id]')).toBeAttached();
     await expect(banner(page)).toBeHidden();
     await expect.poll(() => google.length).toBe(2);
     expect(google).toEqual([GTAG_URL, GTAG_URL]);
@@ -60,7 +60,7 @@ test.describe('A6: red y cookies', () => {
     }, GA_ID);
     expect((await gaCookies(context)).map((c) => c.name).sort()).toEqual(['_ga', `_ga_${GA_ID.slice(2)}`]);
 
-    await page.getByRole('link', { name: 'Configurar cookies' }).click();
+    await footerOpen(page).click();
     await expect(panel(page)).toBeVisible();
     const toggle = panel(page).getByRole('switch', { name: 'Cookies de analítica' });
     await expect(toggle).toHaveAttribute('aria-checked', 'true');

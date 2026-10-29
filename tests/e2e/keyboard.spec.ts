@@ -1,4 +1,4 @@
-import { banner, expect, panel, test, visit } from './fixtures';
+import { banner, expect, footerOpen, panel, test, visit } from './fixtures';
 
 test.describe('teclado y foco (A15)', () => {
   test('el skip link es lo primero al tabular y lleva a main', async ({ page }) => {
@@ -14,7 +14,7 @@ test.describe('teclado y foco (A15)', () => {
 
   test('«Configurar cookies» abre el panel con foco en el título', async ({ page }) => {
     await visit(page, '/privacidad', { expectBanner: true });
-    await page.getByRole('link', { name: 'Configurar cookies' }).click();
+    await footerOpen(page).click();
     await expect(panel(page)).toBeVisible();
     await expect(page.locator('#ng-consent-title')).toBeFocused();
     await expect(page).toHaveURL(/\/privacidad$/); // no navega
@@ -22,7 +22,7 @@ test.describe('teclado y foco (A15)', () => {
 
   test('Escape cierra sin guardar y devuelve el foco al disparador', async ({ page, context }) => {
     await visit(page, '/privacidad', { expectBanner: true });
-    const opener = page.getByRole('link', { name: 'Configurar cookies' });
+    const opener = footerOpen(page);
     await opener.focus();
     await page.keyboard.press('Enter');
     await expect(panel(page)).toBeVisible();
@@ -35,16 +35,23 @@ test.describe('teclado y foco (A15)', () => {
 
   test('Tab y Shift+Tab no escapan del <dialog> modal', async ({ page }) => {
     await visit(page, '/', { expectBanner: true });
-    await page.getByRole('link', { name: 'Configurar cookies' }).click();
+    await footerOpen(page).click();
     await expect(panel(page)).toBeVisible();
-    const insideDialog = () => page.evaluate(() => !!document.activeElement?.closest('#ng-consent-panel'));
-    for (let i = 0; i < 12; i++) {
-      await page.keyboard.press('Tab');
-      expect(await insideDialog(), `Tab #${i + 1}`).toBe(true);
-    }
-    for (let i = 0; i < 12; i++) {
-      await page.keyboard.press('Shift+Tab');
-      expect(await insideDialog(), `Shift+Tab #${i + 1}`).toBe(true);
-    }
+    // Un modal cede el foco al navegador (document.body) al salir del último control y vuelve a entrar:
+    // lo prohibido es llegar a cualquier control de la página de fondo (skip link, banner, nav, pie).
+    const where = () =>
+      page.evaluate(() => {
+        const a = document.activeElement;
+        return a?.closest('#ng-consent-panel') ? 'dialog' : a === document.body || !a ? 'browser' : `FUERA:${a.tagName}.${a.textContent?.slice(0, 20)}`;
+      });
+    const seen = new Set<string>();
+    for (const key of ['Tab', 'Shift+Tab'])
+      for (let i = 0; i < 12; i++) {
+        await page.keyboard.press(key);
+        const w = await where();
+        expect(['dialog', 'browser'], `${key} #${i + 1}: ${w}`).toContain(w);
+        if (w === 'dialog') seen.add(await page.evaluate(() => document.activeElement?.textContent?.trim() ?? ''));
+      }
+    expect([...seen]).toEqual(expect.arrayContaining(['Cerrar', 'Rechazar todo', 'Aceptar todo', 'Guardar selección']));
   });
 });

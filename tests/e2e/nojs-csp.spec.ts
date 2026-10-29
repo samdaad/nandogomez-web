@@ -17,7 +17,14 @@ test.describe('sin JavaScript', () => {
     await page.getByRole('link', { name: 'Configurar cookies' }).click();
     await expect(page).toHaveURL(/\/cookies#configurar$/);
     await expect(page.locator('#configurar')).toBeVisible();
-    await expect(page.getByText('Tienes JavaScript desactivado')).toBeVisible();
+    // Playwright no expone el texto de <noscript> a sus selectores: se comprueba el DOM y que se pinte.
+    const note = await page.evaluate(() => {
+      const p = document.querySelector('#configurar noscript p');
+      return { text: p?.textContent ?? '', display: p ? getComputedStyle(p).display : 'none', h: p?.getBoundingClientRect().height ?? 0 };
+    });
+    expect(note.text).toContain('Tienes JavaScript desactivado');
+    expect(note.display).not.toBe('none');
+    expect(note.h).toBeGreaterThan(0);
     await expect(banner(page)).toBeHidden();
   });
 });

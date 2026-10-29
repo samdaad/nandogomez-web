@@ -55,6 +55,7 @@ export const test = base.extend<Fixtures>({
 
 export const banner = (page: Page) => page.locator('#ng-consent-banner');
 export const panel = (page: Page) => page.locator('#ng-consent-panel');
+export const footerOpen = (page: Page) => page.locator('footer').getByRole('link', { name: 'Configurar cookies' });
 export const gaCookies = async (ctx: BrowserContext) => (await ctx.cookies()).filter((c) => /^_ga/.test(c.name));
 
 /** Abre una página y espera a que el JS del consentimiento haya decidido el banner. */

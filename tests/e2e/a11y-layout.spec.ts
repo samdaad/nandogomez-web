@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import type { Page, TestInfo } from '@playwright/test';
-import { PAGES, banner, choose, expect, panel, test, visit } from './fixtures';
+import { PAGES, banner, choose, expect, footerOpen, panel, test, visit } from './fixtures';
 
 // A13 (docs/PLAN.md §2): 0 violaciones `serious`/`critical` con wcag2a/aa. Añadimos las etiquetas WCAG 2.1
 // (a/aa) por ser más estrictas. `moderate`/`minor` no bloquean (el plan solo exige serious/critical): se
@@ -23,7 +23,7 @@ test.describe('A13: axe', () => {
     });
     test(`${path} con el panel abierto`, async ({ page }, info) => {
       await visit(page, path, { expectBanner: true });
-      await page.getByRole('link', { name: 'Configurar cookies' }).click();
+      await footerOpen(page).click();
       await expect(panel(page)).toBeVisible();
       await audit(page, info);
     });
@@ -43,7 +43,7 @@ test.describe('A14: 320 px', () => {
       await visit(page, path, { expectBanner: true });
       expect((await noHScroll(page)).html).toBeLessThanOrEqual(0);
       expect((await noHScroll(page)).body).toBeLessThanOrEqual(0);
-      await page.getByRole('link', { name: 'Configurar cookies' }).click();
+      await banner(page).getByRole('button', { name: 'Configurar' }).click(); // a 320 px el banner tapa el pie
       await expect(panel(page)).toBeVisible();
       expect((await noHScroll(page)).html).toBeLessThanOrEqual(0);
       await page.keyboard.press('Escape');
@@ -61,10 +61,10 @@ test.describe('posición del banner (decisión de Nando)', () => {
       await page.setViewportSize({ width, height: 800 });
       await visit(page, '/', { expectBanner: true });
       const box = (await banner(page).boundingBox())!;
-      expect(Math.abs(box.x + box.width - (width - 16))).toBeLessThanOrEqual(1); // siempre a 16 px del borde derecho
-      if (side === 'full') expect(Math.abs(box.x - 16)).toBeLessThanOrEqual(1);
+      expect(box.width).toBeLessThanOrEqual(560.5);
+      if (side === 'full') expect(Math.abs(box.x - 16)).toBeLessThanOrEqual(1); // pegado al margen izquierdo
       else {
-        expect(box.width).toBeLessThanOrEqual(560.5);
+        expect(Math.abs(box.x + box.width - (width - 16))).toBeLessThanOrEqual(1); // pegado al derecho
         if (width >= 1000) expect(box.x).toBeGreaterThan(width / 2);
       }
     });
