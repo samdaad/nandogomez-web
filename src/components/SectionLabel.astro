@@ -1,6 +1,8 @@
 ---
+interface Props { as?: 'p' | 'h2' }
+const { as: Tag = 'p' } = Astro.props;
 ---
-<p class="label"><slot /></p>
+<Tag class="label"><slot /></Tag>
 <style>
-  .label { margin: 0 0 20px; font-family: var(--font-mono); font-size: 13px; color: var(--ink-muted); }
+  .label { margin: 0 0 20px; font-family: var(--font-mono); font-size: 13px; font-weight: 400; color: var(--ink-muted); }
 </style>

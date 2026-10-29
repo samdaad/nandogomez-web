@@ -1,0 +1,20 @@
+---
+import { Picture } from 'astro:assets';
+import retrato from '../assets/nando-retrato.webp';
+---
+<figure>
+  <div class="ring">
+    <Picture
+      src={retrato} formats={['avif']} fallbackFormat="webp" quality={70} widths={[360, 560, 800]}
+      sizes="(min-width: 1024px) 400px, calc(100vw - 48px)" priority
+      alt="Nando Gómez impartiendo una formación en un escenario"
+    />
+  </div>
+  <figcaption><span>Nando Gómez</span><span>Consultor y formador</span></figcaption>
+</figure>
+<style>
+  figure { flex: 1 1 300px; min-width: 0; max-width: 400px; margin: 0; }
+  .ring { padding: 10px; border: var(--hairline) solid var(--border-strong); border-radius: 50%; box-shadow: 0 0 0 1px var(--lime) inset; }
+  .ring :global(img) { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; border-radius: 50%; object-fit: cover; }
+  figcaption { margin-top: 14px; display: flex; justify-content: space-between; gap: var(--space-3); font-family: var(--font-mono); font-size: 13px; color: var(--ink-muted); }
+</style>

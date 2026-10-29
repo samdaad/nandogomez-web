@@ -72,7 +72,8 @@ describe('P8 · retrato (A11)', () => {
       expect(u).not.toMatch(/\.png$/);
       expect(statSync(join(DIST, u)).size, u).toBeLessThan(120 * 1024);
     }
-    expect(urls.some((u) => /_800w\.|w=800|800/.test(u))).toBe(true);
+    const widths = [...pic.querySelectorAll('[srcset]')].flatMap((e) => [...(e.getAttribute('srcset') ?? '').matchAll(/\s(\d+)w/g)].map((m) => Number(m[1])));
+    expect(Math.max(...widths)).toBe(800);
   });
   it('doble anillo y pie «Nando Gómez» / «Consultor y formador»', () => {
     expect($('#inicio figure .ring')).toBeTruthy();
