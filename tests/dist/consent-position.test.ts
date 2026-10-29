@@ -9,10 +9,10 @@ const css = distFiles()
   .join('\n')
   .replace(/\/\*[\s\S]*?\*\//g, '');
 
-/** Cuerpos de los @media (min-width: 600px) (con o sin espacios). */
+/** Cuerpos de los @media de ~600px: `(min-width: 600px)` o la forma minificada `(width>=600px)`. */
 function wideBlocks(src: string): string[] {
   const out: string[] = [];
-  const re = /@media\s*\(\s*min-width\s*:\s*(\d+)px\s*\)\s*\{/g;
+  const re = /@media\s*\(\s*(?:min-width\s*:|width\s*>=)\s*(\d+)px\s*\)\s*\{/g;
   for (let m = re.exec(src); m; m = re.exec(src)) {
     if (Number(m[1]) < 560 || Number(m[1]) > 640) continue;
     let depth = 1;
