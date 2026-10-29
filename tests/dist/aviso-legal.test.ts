@@ -5,6 +5,14 @@ import { DIST, pages } from './helpers';
 const all = pages().map((p) => ({ ...p, rel: relative(DIST, p.file) }));
 const page = all.find((p) => p.rel === 'aviso-legal.html');
 
+const rows = (): Record<string, string> =>
+  Object.fromEntries(
+    [...page!.doc.querySelectorAll('main dl > div')].map((r) => [
+      r.querySelector('dt')?.textContent?.trim() ?? '',
+      r.querySelector('dd')?.textContent?.replace(/\s+/g, ' ').trim() ?? '',
+    ]),
+  );
+
 describe('dist · /aviso-legal (P2a)', () => {
   it('existe dist/aviso-legal.html', () => {
     expect(page).toBeDefined();
@@ -35,8 +43,39 @@ describe('dist · /aviso-legal (P2a)', () => {
   it('los datos del titular son exactamente 6 filas y no incluyen el Registro Mercantil', () => {
     const d = page!.doc;
     const terms = [...d.querySelectorAll('main dl > div > dt')].map((t) => t.textContent?.trim());
-    expect(terms).toEqual(['Denominación social', 'Nombre comercial', 'NIF', 'Domicilio social', 'Correo electrónico', 'Teléfono']);
+    expect(terms).toEqual(['Titular', 'Nombre comercial', 'NIF', 'Domicilio', 'Correo electrónico', 'Teléfono']);
     expect(d.body.textContent ?? '').not.toContain('Registro Mercantil');
+  });
+
+  it('el titular es la persona física con sus datos exactos', () => {
+    expect(rows()).toMatchObject({
+      Titular: 'Fernando Gómez Margiotta',
+      'Nombre comercial': 'Nando Gómez',
+      NIF: '45496623R',
+      Domicilio: 'Moratín 31-33, 08302 Mataró (Barcelona), España',
+    });
+  });
+
+  it('el NIF mostrado cumple el algoritmo de la letra del DNI', () => {
+    const nif = rows().NIF!;
+    expect(nif).toMatch(/^\d{8}[A-Z]$/);
+    expect(nif[8]).toBe('TRWAGMYFPDXBNJZSQVHLCKE'[Number(nif.slice(0, 8)) % 23]);
+  });
+
+  it('el titular y la propiedad intelectual no citan a Digital Twofers; el objeto lo cita como facturador', () => {
+    const d = page!.doc;
+    const dl = d.querySelector('main dl')!.textContent ?? '';
+    expect(dl).not.toContain('Twofers');
+    expect(dl).not.toContain('B16988479');
+    const sec = (n: number) => {
+      const h = [...d.querySelectorAll('main h2')][n - 1]!;
+      return h.nextElementSibling!.textContent ?? '';
+    };
+    expect(sec(4)).toContain('pertenecen a Fernando Gómez Margiotta');
+    expect(sec(4)).not.toContain('Twofers');
+    expect(sec(2)).toContain('titular Fernando Gómez Margiotta');
+    expect(sec(2)).toContain('se contratan y facturan a través de Digital Twofers, S.L. (NIF B16988479)');
+    expect(d.body.textContent ?? '').not.toContain('Denominación social');
   });
 
   it('la fecha de actualización sigue como pendiente entre corchetes', () => {

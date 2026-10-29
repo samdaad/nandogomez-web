@@ -35,9 +35,11 @@ describe('P2a adv · fidelidad de /aviso-legal frente a design/AvisoLegal.dc.htm
       [...d.querySelectorAll('main dt')].map((dt) => [norm(dt.textContent), norm(dt.nextElementSibling?.textContent)]);
     expect(pairs(aviso!.doc)).toEqual(pairs(design));
     const map = Object.fromEntries(pairs(aviso!.doc));
-    expect(map['Denominación social']).toBe('Digital Twofers, S.L.');
-    expect(map['NIF']).toBe('B16988479');
-    expect(map['Domicilio social']).toBe('La Riera 31, 08302 Mataró (Barcelona), España');
+    // Decisión de Nando (29/10/2026): el titular es la persona física; la sociedad solo factura.
+    expect(map['Titular']).toBe('Fernando Gómez Margiotta');
+    expect(map['Nombre comercial']).toBe('Nando Gómez');
+    expect(map['NIF']).toBe('45496623R');
+    expect(map['Domicilio']).toBe('Moratín 31-33, 08302 Mataró (Barcelona), España');
     expect(map['Correo electrónico']).toBe('hola@nandogomez.com');
     expect(map['Teléfono']).toBe('+34 603 24 26 82');
   });
@@ -97,8 +99,11 @@ describe('P2a adv · estructura y accesibilidad de /aviso-legal', () => {
     }
     expect(dl.children).toHaveLength(6);
     expect([...dl.querySelectorAll('dt')].map((dt) => norm(dt.textContent))).toEqual([
-      'Denominación social', 'Nombre comercial', 'NIF', 'Domicilio social', 'Correo electrónico', 'Teléfono',
+      'Titular', 'Nombre comercial', 'NIF', 'Domicilio', 'Correo electrónico', 'Teléfono',
     ]);
+    expect([...dl.querySelectorAll('dt')].map((dt) => norm(dt.textContent))).toEqual(
+      [...design.querySelectorAll('main dl dt')].map((dt) => norm(dt.textContent)),
+    );
   });
 
   it('cabecera (banner) y pie (contentinfo) están fuera de main y a nivel de body', () => {
