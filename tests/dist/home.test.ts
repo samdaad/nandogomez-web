@@ -158,10 +158,18 @@ describe('P9 · franja de clientes', () => {
     expect(text(s.querySelector('.label'))).toBe('/ han confiado en mí');
   });
   it('lista semántica con exactamente los 6 nombres, solo texto y sin enlaces', () => {
-    expect([...s.querySelectorAll('ul > li')].map(text)).toEqual(['Deor Consultores', 'OK Humedades', 'Learn2Be', 'Vil·la Minerva', 'Miquel Pares', 'RG Compact']);
+    expect([...s.querySelectorAll('ul > li')].map(text)).toEqual(['DEOR Consultores', 'OK Humedades', 'Learn2Be', 'Vil·la Minerva', 'Miquel Pares', 'RG Compact']);
     expect(s.querySelectorAll('li')).toHaveLength(6);
     expect(s.querySelector('a, img, svg')).toBeNull();
     expect(text(s.querySelectorAll('li')[3])).toContain('\u00B7');
+  });
+});
+
+describe('P9 · trayectoria', () => {
+  it('escribe DEOR Consultores en mayúsculas (decisión de Nando 29/10/2026)', () => {
+    const t = text($('section#sobre-mi'));
+    expect(t).toContain('informática con DEOR Consultores, después');
+    expect(t).not.toMatch(/Deor/);
   });
 });
 

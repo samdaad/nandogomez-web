@@ -103,6 +103,10 @@ const gaId = getGaId();
     .knob { transition: left 0.15s ease; }
     .switch { transition: background-color 0.15s ease; }
   }
+  /* Decisión de Nando (29/10/2026): abajo a la derecha, para no tapar «Hablemos». */
+  @media (min-width: 600px) {
+    .banner { inset-inline-start: auto; width: min(560px, 100% - 32px); }
+  }
   @media (max-width: 400px) {
     .banner, .panel { padding: var(--space-4); }
     .row { gap: var(--space-3); flex-wrap: wrap; }
