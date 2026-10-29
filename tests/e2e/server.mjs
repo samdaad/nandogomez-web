@@ -17,7 +17,7 @@ const headers = Object.fromEntries(globalBlock.split('\n').filter(Boolean).map((
 }));
 
 const find = (path) => {
-  const clean = normalize(decodeURIComponent(path)).replace(/^(\.\.[/\\])+/, '');
+  const clean = normalize(path).replace(/^(\.\.[/\\])+/, '');
   for (const c of [clean, `${clean}.html`, join(clean, 'index.html')]) {
     const f = join(root, c);
     if (f.startsWith(root) && existsSync(f) && statSync(f).isFile()) return f;
@@ -26,7 +26,13 @@ const find = (path) => {
 };
 
 createServer((req, res) => {
-  const { pathname } = new URL(req.url ?? '/', 'http://localhost');
+  let pathname;
+  try {
+    pathname = decodeURIComponent(new URL(req.url ?? '/', 'http://localhost').pathname);
+  } catch {
+    res.writeHead(400, { ...headers, 'Content-Type': 'text/plain' }).end('Bad request');
+    return;
+  }
   const file = find(pathname);
   const target = file ?? join(root, '404.html');
   res.writeHead(file ? 200 : 404, { ...headers, 'Content-Type': types[extname(target)] ?? 'application/octet-stream' });
