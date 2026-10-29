@@ -16,14 +16,14 @@ describe('dist · /aviso-legal (P2a)', () => {
     expect(d.querySelector('meta[property="og:url"]')?.getAttribute('content')).toBe('https://nandogomez.com/aviso-legal');
   });
 
-  it('un h1, 7 h2 numerados y 7 pares dt/dd', () => {
+  it('un h1, 7 h2 numerados y 6 pares dt/dd', () => {
     const d = page!.doc;
     expect(d.querySelectorAll('h1')).toHaveLength(1);
     const h2 = [...d.querySelectorAll('main h2')].map((h) => h.textContent?.trim());
     expect(h2).toHaveLength(7);
     h2.forEach((t, i) => expect(t).toMatch(new RegExp(`^${i + 1}\\. `)));
-    expect(d.querySelectorAll('main dl > div > dt')).toHaveLength(7);
-    expect(d.querySelectorAll('main dl > div > dd')).toHaveLength(7);
+    expect(d.querySelectorAll('main dl > div > dt')).toHaveLength(6);
+    expect(d.querySelectorAll('main dl > div > dd')).toHaveLength(6);
   });
 
   it('teléfono como tel:+34603242682 y correo como mailto', () => {
@@ -32,10 +32,15 @@ describe('dist · /aviso-legal (P2a)', () => {
     expect(d.querySelector('a[href="mailto:hola@nandogomez.com"]')).not.toBeNull();
   });
 
-  it('los pendientes legales siguen visibles entre corchetes (no se inventan datos)', () => {
-    const text = page!.doc.body.textContent ?? '';
-    expect(text).toContain('[FECHA DE PUBLICACIÓN]');
-    expect(text).toContain('[Registro Mercantil de Barcelona, tomo, folio, hoja e inscripción]');
+  it('los datos del titular son exactamente 6 filas y no incluyen el Registro Mercantil', () => {
+    const d = page!.doc;
+    const terms = [...d.querySelectorAll('main dl > div > dt')].map((t) => t.textContent?.trim());
+    expect(terms).toEqual(['Denominación social', 'Nombre comercial', 'NIF', 'Domicilio social', 'Correo electrónico', 'Teléfono']);
+    expect(d.body.textContent ?? '').not.toContain('Registro Mercantil');
+  });
+
+  it('la fecha de actualización sigue como pendiente entre corchetes', () => {
+    expect(page!.doc.body.textContent ?? '').toContain('[FECHA DE PUBLICACIÓN]');
   });
 
   it('enlaza a privacidad y cookies sin .dc.html', () => {
