@@ -27,7 +27,7 @@ const css = distFiles().filter((f) => f.endsWith('.css')).map(read).join('\n');
 const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((m) => ({ sel: m[1]!.trim(), body: m[2]! }));
 const tokens = new Set([...read(join(ROOT, 'src/styles/tokens.css')).matchAll(/--([\w-]+)\s*:/g)].map((m) => m[1]!));
 
-const CLIENTS = ['Deor Consultores', 'OK Humedades', 'Learn2Be', 'Vil·la Minerva', 'Miquel Pares', 'RG Compact'];
+const CLIENTS = ['DEOR Consultores', 'OK Humedades', 'Learn2Be', 'Vil·la Minerva', 'Miquel Pares', 'RG Compact'];
 
 describe('adv P9 · fidelidad de textos frente al diseño', () => {
   it('#metodo: etiqueta, titular y los 4 pasos (número y texto) idénticos al diseño', () => {
@@ -48,7 +48,7 @@ describe('adv P9 · fidelidad de textos frente al diseño', () => {
     const t = visible($('#sobre-mi'));
     expect(t).toContain('Durante más de 26 años dirigí');
     expect(t).toContain('Escuela Universitaria de Hostelería y Turismo de Sant Pol de Mar');
-    expect(t).toContain('Desde 2016 soy consultor y formador en tecnología, comunicación e informática con Deor Consultores');
+    expect(t).toContain('Desde 2016 soy consultor y formador en tecnología, comunicación e informática con DEOR Consultores');
     expect(t).toContain('después de haberlo sido también con Grup Qualia.');
     expect(t).toContain('Ingeniero Técnico en Informática de Gestión · Escuela Universitaria Politécnica de Mataró');
     expect(t).toContain('Programa Superior en Administración y Dirección de Empresas (PDAE) · EAE Business School');
@@ -86,7 +86,7 @@ describe('adv P9 · clientes (lista cerrada)', () => {
     expect(html).not.toMatch(/Vil[‧⋅∙.\-]la/);
   });
 
-  it('ningún nombre de cliente fuera de #clientes, salvo Deor (y Grup Qualia) en la trayectoria de #sobre-mi', () => {
+  it('ningún nombre de cliente fuera de #clientes, salvo DEOR (y Grup Qualia) en la trayectoria de #sobre-mi', () => {
     for (const { file, doc: d } of pages()) {
       const c = d.body.cloneNode(true) as Element;
       c.querySelector('#clientes')?.remove();
