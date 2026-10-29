@@ -1,6 +1,6 @@
 ---
 interface Row { term: string; value: string; href?: string; html?: string }
-interface Props { rows: Row[]; variant?: 'legal' | 'card' }
+interface Props { rows: Row[]; variant?: 'legal' | 'card' | 'profile' }
 const { rows, variant = 'legal' } = Astro.props;
 ---
 <dl class={variant}>
@@ -15,11 +15,15 @@ const { rows, variant = 'legal' } = Astro.props;
   dl { margin: 0 0 56px; border-top: var(--hairline) solid var(--divider); }
   div { display: flex; flex-wrap: wrap; gap: 2px var(--space-6); padding: 14px 0; border-bottom: var(--hairline) solid var(--divider); }
   dt { flex: 1 1 180px; font-family: var(--font-mono); font-size: 13px; color: var(--ink-muted); padding-top: 3px; }
-  dd { flex: 3 1 320px; margin: 0; overflow-wrap: anywhere; }
+  dd { flex: 3 1 320px; min-width: 0; margin: 0; overflow-wrap: anywhere; }
   /* card: dt sobre dd, dentro de un bloque con fondo surface */
   dl.card { margin: 0; border-top: 0; }
   .card div { display: block; padding: 10px 0; border-bottom-color: var(--border); }
   .card div:last-child { border-bottom: 0; }
   .card dt { padding-top: 0; }
   .card dd { overflow-wrap: normal; }
+  /* profile: filas de «Sobre mí» */
+  dl.profile { margin: 0; }
+  .profile div { gap: 4px var(--space-8); padding: 18px 0; }
+  .profile dt { flex-basis: 200px; padding-top: 0; }
 </style>

@@ -200,12 +200,12 @@ describe('P9 · #contacto', () => {
 
 describe('P9 · enlaces externos y accesibilidad', () => {
   it('los únicos destinos externos de la home son twofers.es y LinkedIn', () => {
-    expect(external(doc).map((a) => a.getAttribute('href')).sort()).toEqual([LINKEDIN_URL, TWOFERS_URL]);
+    expect(external(doc).map((a) => a.getAttribute('href')).sort()).toEqual([LINKEDIN_URL, TWOFERS_URL].sort());
     for (const a of external(doc)) expect(a.getAttribute('rel')).toBe('noopener noreferrer');
   });
   it('●, → y ↗ decorativos van en un elemento aria-hidden', () => {
     const marks = [...doc.querySelectorAll('main *')].filter((e) => e.children.length === 0 && /^[●→↗]$/.test(text(e)));
-    expect(marks.map(text).sort()).toEqual(['↗', '↗', '→', '●']);
+    expect(marks.map(text).sort()).toEqual(['→', '↗', '↗', '●']);
     for (const m of marks) expect(m.getAttribute('aria-hidden'), m.outerHTML).toBe('true');
   });
   it('un solo .btn--primary por sección y por cabecera', () => {
