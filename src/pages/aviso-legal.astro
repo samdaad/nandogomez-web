@@ -1,7 +1,6 @@
 ---
 import LegalLayout from '../layouts/LegalLayout.astro';
 import DefinitionRows from '../components/DefinitionRows.astro';
-import { REGISTRO_MERCANTIL } from '../lib/legal';
 import { EMAIL, PHONE_DISPLAY, PHONE_HREF } from '../lib/site';
 
 const rows = [
@@ -9,7 +8,6 @@ const rows = [
   { term: 'Nombre comercial', value: 'Nando Gómez' },
   { term: 'NIF', value: 'B16988479' },
   { term: 'Domicilio social', value: 'La Riera 31, 08302 Mataró (Barcelona), España' },
-  { term: 'Registro Mercantil', value: REGISTRO_MERCANTIL },
   { term: 'Correo electrónico', value: EMAIL, href: `mailto:${EMAIL}` },
   { term: 'Teléfono', value: PHONE_DISPLAY, href: PHONE_HREF },
 ];
