@@ -481,6 +481,13 @@ El e2e no depende de `vars.PUBLIC_GA_ID`: Playwright hace su propio build con `G
 - El botón del hero pasa de «Agenda una llamada» a **«Hablemos»** (sigue enlazando a `#contacto`). Entra en P8.
 - Clientes que pueden aparecer con su nombre (los únicos): **Deor Consultores, OK Humedades, Learn2Be, Vil·la Minerva, MiquelPares SL, RG Compact**. Ortografía exacta de cada nombre a confirmar con Nando antes de P9. Cómo se presentan (en el bloque de Digital Twofers o en una franja propia de clientes) se decide en P9 con Nando; ningún otro nombre de cliente puede aparecer en la web.
 
+**Decisiones de Nando en P9 (29/10/2026):**
+- El cliente se escribe **«DEOR Consultores»** (DEOR en mayúsculas) en toda la web: franja de clientes y trayectoria de #sobre-mi. El diseño `design/Tecnico.dc.html` coincide.
+- **Miquel Pares**, sin forma jurídica (no «MiquelPares SL»).
+- Los clientes van en una **franja propia entre #sobre-mi y #twofers con id #clientes**: 7 secciones en la home y 3 destinos externos.
+- El **banner de cookies va abajo a la derecha** (no a la izquierda) para no tapar el botón «Hablemos» del hero. En móvil estrecho ocupa el ancho con márgenes laterales; a partir de ~600 px se ancla a la derecha con el mismo margen.
+- **El pie no lleva correo**: se queda como está.
+
 **Otras observaciones (no bloquean):**
 - Incorporar `--border-control` y `--overlay` a `tokens.json`.
 - El pie de Aviso legal y de Privacidad no tenía «Configurar cookies»; se unifica (A8).
