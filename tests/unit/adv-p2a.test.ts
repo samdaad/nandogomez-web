@@ -3,7 +3,8 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { LEGAL_UPDATED, REGISTRO_MERCANTIL } from '../../src/lib/legal';
+import * as legal from '../../src/lib/legal';
+import { LEGAL_UPDATED } from '../../src/lib/legal';
 import { PHONE_DISPLAY, PHONE_HREF, SITE_URL, canonicalUrl } from '../../src/lib/site';
 
 const ROOT = join(import.meta.dirname, '../..');
@@ -58,9 +59,23 @@ describe('P2a adv · canonicalUrl nunca sale de https://nandogomez.com', () => {
 
 describe('P2a adv · datos legales y contacto', () => {
   it('los pendientes de lib/legal.ts son marcadores entre corchetes, sin cifras inventadas', () => {
-    for (const v of [LEGAL_UPDATED, REGISTRO_MERCANTIL]) {
-      expect(v).toMatch(/^\[[^\]]+\]$/);
-      expect(v).not.toMatch(/\d/);
+    // Decisión de Nando (29/10/2026): el aviso legal no publica el Registro Mercantil.
+    // La fecha sigue siendo un pendiente explícito sin cifras mientras no se fije.
+    expect(LEGAL_UPDATED).toMatch(/^\[[^\]]+\]$/);
+    expect(LEGAL_UPDATED).not.toMatch(/\d/);
+  });
+
+  it('lib/legal.ts no exporta REGISTRO_MERCANTIL ni otro dato registral', () => {
+    expect(Object.keys(legal)).not.toContain('REGISTRO_MERCANTIL');
+    for (const k of Object.keys(legal)) expect(k).not.toMatch(/REGISTRO|MERCANTIL/i);
+  });
+
+  it('la fuente del aviso legal no contiene datos registrales inventados', () => {
+    for (const f of ['src/pages/aviso-legal.astro', 'src/lib/legal.ts', 'design/AvisoLegal.dc.html']) {
+      const txt = readFileSync(join(ROOT, f), 'utf8');
+      expect(txt, f).not.toMatch(/Registro\s+Mercantil/i);
+      expect(txt, f).not.toMatch(/\b(tomo|folio|hoja|inscripci[oó]n)\b[^<\n]{0,12}\d/i);
+      expect(txt, f).not.toMatch(/REGISTRO_MERCANTIL/);
     }
   });
 

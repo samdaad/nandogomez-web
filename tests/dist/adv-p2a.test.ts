@@ -42,12 +42,12 @@ describe('P2a adv · fidelidad de /aviso-legal frente a design/AvisoLegal.dc.htm
     expect(map['Teléfono']).toBe('+34 603 24 26 82');
   });
 
-  it('Registro Mercantil y fecha son pendientes explícitos entre corchetes, no valores inventados', () => {
+  it('no hay fila de Registro Mercantil y la fecha es un pendiente explícito', () => {
+    // Decisión de Nando (29/10/2026): el aviso legal no publica los datos del Registro Mercantil.
     const d = aviso!.doc;
-    const rm = [...d.querySelectorAll('main dt')].find((dt) => norm(dt.textContent) === 'Registro Mercantil');
-    const rmVal = norm(rm?.nextElementSibling?.textContent);
-    expect(rmVal).toMatch(/^\[[^\]]+\]$/);
-    expect(rmVal).not.toMatch(/\d/);
+    const dts = [...d.querySelectorAll('main dt')].map((dt) => norm(dt.textContent));
+    expect(dts.some((t) => /registro|mercantil/i.test(t))).toBe(false);
+    expect(aviso!.html).not.toMatch(/Registro\s+Mercantil/i);
     const upd = norm(d.querySelector('main .updated')?.textContent ?? '');
     expect(upd).toMatch(/^Última actualización: \[[^\]]+\]$/);
     // Ninguna fecha ni dato registral con cifras colado en el texto de main.
@@ -89,13 +89,16 @@ describe('P2a adv · fidelidad de /aviso-legal frente a design/AvisoLegal.dc.htm
 });
 
 describe('P2a adv · estructura y accesibilidad de /aviso-legal', () => {
-  it('dl: solo <div> como hijos, cada uno con exactamente un dt seguido de un dd', () => {
+  it('dl: 6 <div> como hijos (sin Registro Mercantil), cada uno con exactamente un dt seguido de un dd', () => {
     const dl = aviso!.doc.querySelector('main dl')!;
     for (const child of dl.children) {
       expect(child.tagName).toBe('DIV');
       expect([...child.children].map((c) => c.tagName)).toEqual(['DT', 'DD']);
     }
-    expect(dl.children).toHaveLength(7);
+    expect(dl.children).toHaveLength(6);
+    expect([...dl.querySelectorAll('dt')].map((dt) => norm(dt.textContent))).toEqual([
+      'Denominación social', 'Nombre comercial', 'NIF', 'Domicilio social', 'Correo electrónico', 'Teléfono',
+    ]);
   });
 
   it('cabecera (banner) y pie (contentinfo) están fuera de main y a nivel de body', () => {
