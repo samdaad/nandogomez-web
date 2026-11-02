@@ -83,8 +83,9 @@ describe('dist · /cookies (P3)', () => {
     expect(page!.html).not.toMatch(/\.dc\.html/);
   });
 
-  it('fecha pendiente visible y pie con «Configurar cookies» (A8)', () => {
-    expect(page!.doc.body.textContent).toContain('[FECHA DE PUBLICACIÓN]');
+  it('fecha de publicación visible y pie con «Configurar cookies» (A8)', () => {
+    expect((page!.doc.body.textContent ?? '').replace(/\s+/g, ' ')).toContain('Última actualización: 2 de noviembre de 2026');
+    expect(page!.html).not.toContain('[FECHA DE PUBLICACIÓN]');
     expect(page!.doc.querySelector('footer [data-consent-open]')?.getAttribute('href')).toBe('/cookies#configurar');
   });
 });
