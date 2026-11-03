@@ -485,6 +485,8 @@ El job no define `PUBLIC_GA_ID` (enmienda de P11): la CI debe ser determinista y
 - Los clientes van en una **franja propia entre #sobre-mi y #twofers con id #clientes**: 7 secciones en la home y 3 destinos externos.
 - El **banner de cookies va abajo a la derecha** (no a la izquierda) para no tapar el botón «Hablemos» del hero. En móvil estrecho ocupa el ancho con márgenes laterales; a partir de ~600 px se ancla a la derecha con el mismo margen.
 - **El pie no lleva correo**: se queda como está.
+
+**Decisión de Nando (03/11/2026):** formación in company en un segundo grupo; logos solo con permiso escrito de cada empresa. #clientes pasa a dos grupos (h3 «Consultoría» y «Formación in company», cada uno con su `<ul>`): EUHT StPOL, Balearia (sin tilde, por decisión del dueño), Agfa, Hotel RA, APD, Ashland.
 - **29/10/2026: no se publican los datos del Registro Mercantil** (decisión de Nando, informado del art. 10 LSSI). El aviso legal queda con 6 filas y `lib/legal.ts` ya no exporta `REGISTRO_MERCANTIL`.
 - **29/10/2026: titular de la web, Fernando Gómez Margiotta (persona física); servicios facturados por Digital Twofers, S.L.**
 
