@@ -477,7 +477,7 @@ El job no define `PUBLIC_GA_ID` (enmienda de P11): la CI debe ser determinista y
 
 **Decisiones de Nando en la puerta 1 (27/10/2026):**
 - El botón del hero pasa de «Agenda una llamada» a **«Hablemos»** (sigue enlazando a `#contacto`). Entra en P8.
-- Clientes que pueden aparecer con su nombre (los únicos): **Deor Consultores, OK Humedades, Learn2Be, Vil·la Minerva, MiquelPares SL, RG Compact**. Ortografía exacta de cada nombre a confirmar con Nando antes de P9. Cómo se presentan (en el bloque de Digital Twofers o en una franja propia de clientes) se decide en P9 con Nando; ningún otro nombre de cliente puede aparecer en la web.
+- Clientes que pueden aparecer con su nombre (los únicos): **Deor Consultores, OK Humedades, Learn2Be, Vil·la Minerva, MiquelPares SL, RG Compact**. Ortografía exacta de cada nombre a confirmar con Nando antes de P9. Cómo se presentan (en el bloque de Digital Twofers o en una franja propia de clientes) se decide en P9 con Nando; ningún otro nombre de cliente puede aparecer en la web. **Ampliado el 03/11/2026 por Nando:** se añade un segundo grupo «Formación in company» con EUHT StPOL, Balearia, Agfa, Hotel RA, APD y Ashland; fuera de estas 12 empresas sigue sin poder aparecer ningún otro nombre.
 
 **Decisiones de Nando en P9 (29/10/2026):**
 - El cliente se escribe **«DEOR Consultores»** (DEOR en mayúsculas) en toda la web: franja de clientes y trayectoria de #sobre-mi. El diseño `design/Tecnico.dc.html` coincide.
