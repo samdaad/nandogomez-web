@@ -157,10 +157,18 @@ describe('P9 · franja de clientes', () => {
     expect(text(s.querySelector('h2'))).toBe('Empresas con las que he trabajado');
     expect(text(s.querySelector('.label'))).toBe('/ han confiado en mí');
   });
-  it('lista semántica con exactamente los 6 nombres, solo texto y sin enlaces', () => {
-    expect([...s.querySelectorAll('ul > li')].map(text)).toEqual(['DEOR Consultores', 'OK Humedades', 'Learn2Be', 'Vil·la Minerva', 'Miquel Pares', 'RG Compact']);
-    expect(s.querySelectorAll('li')).toHaveLength(6);
-    expect(s.querySelector('a, img, svg')).toBeNull();
+  it('dos grupos: h3 «Consultoría» y «Formación in company», cada uno seguido de su <ul>', () => {
+    const h3 = [...s.querySelectorAll('h3')];
+    expect(h3.map(text)).toEqual(['Consultoría', 'Formación in company']);
+    for (const h of h3) expect(h.nextElementSibling?.tagName).toBe('UL');
+    expect(s.querySelectorAll('ul')).toHaveLength(2);
+  });
+  it('listas exactas y en orden, solo texto: sin enlaces ni imágenes', () => {
+    const [a, b] = [...s.querySelectorAll('ul')].map((u) => [...u.querySelectorAll(':scope > li')].map(text));
+    expect(a).toEqual(['DEOR Consultores', 'OK Humedades', 'Learn2Be', 'Vil·la Minerva', 'Miquel Pares', 'RG Compact']);
+    expect(b).toEqual(['EUHT StPOL', 'Balearia', 'Agfa', 'Hotel RA', 'APD', 'Ashland']);
+    expect(s.querySelectorAll('li')).toHaveLength(12);
+    expect(s.querySelector('a, img, svg, picture')).toBeNull();
     expect(text(s.querySelectorAll('li')[3])).toContain('\u00B7');
   });
 });
