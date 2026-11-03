@@ -311,7 +311,7 @@ gh pr create --base main --head feat/web-inicial --title "docs: plan de la web y
 **P4. `check:release`** (`feat/web-p4`)
 - **Entra:** el script, la cadena de `build`, `check:release` y las fixtures.
 - **ROJO:** `check-release.test.ts` (A17; ignora corchetes en `script`/`style`; el modo aviso termina con 0).
-- **Acepta:** verde. Sobre el `dist/` real lista los 5 pendientes (3 fechas, el Registro y `_ga_[ID]`).
+- **Acepta:** verde. Sobre el `dist/` real de entonces listaba 5 pendientes (3 fechas, el Registro y `_ga_[ID]`). Hoy (M7 cerrado) solo queda `_ga_[ID]` cuando el build no tiene `PUBLIC_GA_ID`; con ID válido, ninguno.
 
 **P5. Núcleo de consentimiento** (`feat/web-p5`)
 - **Entra:** `core.ts`, `state.ts`, `@vitest/coverage-v8` 5.0.5, y la cobertura en `vitest.config.ts` (solo `src/lib/consent/**`, líneas ≥ 95). `test` pasa a `vitest run --coverage`.
