@@ -477,7 +477,7 @@ El job no define `PUBLIC_GA_ID` (enmienda de P11): la CI debe ser determinista y
 
 **Decisiones de Nando en la puerta 1 (27/10/2026):**
 - El botón del hero pasa de «Agenda una llamada» a **«Hablemos»** (sigue enlazando a `#contacto`). Entra en P8.
-- Clientes que pueden aparecer con su nombre (los únicos): **Deor Consultores, OK Humedades, Learn2Be, Vil·la Minerva, MiquelPares SL, RG Compact**. Ortografía exacta de cada nombre a confirmar con Nando antes de P9. Cómo se presentan (en el bloque de Digital Twofers o en una franja propia de clientes) se decide en P9 con Nando; ningún otro nombre de cliente puede aparecer en la web. **Ampliado el 03/11/2026 por Nando:** se añade un segundo grupo «Formación in company» con EUHT StPOL, Balearia, Agfa, Hotel RA, APD y Ashland; fuera de estas 12 empresas sigue sin poder aparecer ningún otro nombre.
+- Clientes que pueden aparecer con su nombre (los únicos): **Deor Consultores, OK Humedades, Learn2Be, Vil·la Minerva, Miquel Pares, RG Compact** (ortografía ya corregida en P9). Ortografía exacta de cada nombre a confirmar con Nando antes de P9. Cómo se presentan (en el bloque de Digital Twofers o en una franja propia de clientes) se decide en P9 con Nando; ningún otro nombre de cliente puede aparecer en la web. **Ampliado el 03/11/2026 por Nando:** se añade un segundo grupo «Formación in company» con EUHT StPOL, Balearia, Agfa, Hotel RA, APD y Ashland; fuera de estas 12 empresas sigue sin poder aparecer ningún otro nombre.
 
 **Decisiones de Nando en P9 (29/10/2026):**
 - El cliente se escribe **«DEOR Consultores»** (DEOR en mayúsculas) en toda la web: franja de clientes y trayectoria de #sobre-mi. El diseño `design/Tecnico.dc.html` coincide.
@@ -485,10 +485,10 @@ El job no define `PUBLIC_GA_ID` (enmienda de P11): la CI debe ser determinista y
 - Los clientes van en una **franja propia entre #sobre-mi y #twofers con id #clientes**: 7 secciones en la home y 3 destinos externos.
 - El **banner de cookies va abajo a la derecha** (no a la izquierda) para no tapar el botón «Hablemos» del hero. En móvil estrecho ocupa el ancho con márgenes laterales; a partir de ~600 px se ancla a la derecha con el mismo margen.
 - **El pie no lleva correo**: se queda como está.
-
-**Decisión de Nando (03/11/2026):** formación in company en un segundo grupo; logos solo con permiso escrito de cada empresa. #clientes pasa a dos grupos (h3 «Consultoría» y «Formación in company», cada uno con su `<ul>`): EUHT StPOL, Balearia (sin tilde, por decisión del dueño), Agfa, Hotel RA, APD, Ashland.
 - **29/10/2026: no se publican los datos del Registro Mercantil** (decisión de Nando, informado del art. 10 LSSI). El aviso legal queda con 6 filas y `lib/legal.ts` ya no exporta `REGISTRO_MERCANTIL`.
 - **29/10/2026: titular de la web, Fernando Gómez Margiotta (persona física); servicios facturados por Digital Twofers, S.L.**
+
+**Decisión de Nando (03/11/2026):** formación in company en un segundo grupo; logos solo con permiso escrito de cada empresa. #clientes pasa a dos grupos (h3 «Consultoría» y «Formación in company», cada uno con su `<ul>`): EUHT StPOL, Balearia (sin tilde, por decisión del dueño), Agfa, Hotel RA, APD, Ashland.
 
 **Otras observaciones (no bloquean):**
 - Incorporar `--border-control` y `--overlay` a `tokens.json`.

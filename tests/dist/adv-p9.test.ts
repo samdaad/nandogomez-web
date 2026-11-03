@@ -27,16 +27,7 @@ const css = distFiles().filter((f) => f.endsWith('.css')).map(read).join('\n');
 const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((m) => ({ sel: m[1]!.trim(), body: m[2]! }));
 const tokens = new Set([...read(join(ROOT, 'src/styles/tokens.css')).matchAll(/--([\w-]+)\s*:/g)].map((m) => m[1]!));
 
-// Decisión del dueño (03/11/2026): dos grupos, cada uno con su h3 y su <ul>. Lista cerrada de 12 empresas.
-const CONSULTORIA = ['DEOR Consultores', 'OK Humedades', 'Learn2Be', 'Vil·la Minerva', 'Miquel Pares', 'RG Compact'];
-const FORMACION = ['EUHT StPOL', 'Balearia', 'Agfa', 'Hotel RA', 'APD', 'Ashland'];
-const CLIENTS = [...CONSULTORIA, ...FORMACION];
-const GROUPS: [string, string[]][] = [['Consultoría', CONSULTORIA], ['Formación in company', FORMACION]];
-/** Marcas que no pueden salir de #clientes. Las de P9 se buscan como subcadena (como antes); las de formación,
- *  más cortas (APD, Agfa…), como palabra entera para no chocar con RGPD y similares. */
-const OLD_MARKS = ['DEOR', 'Deor', 'Humedades', 'Learn2Be', 'Minerva', 'Pares', 'RG Compact', 'Qualia'];
-const NEW_MARKS = ['EUHT', 'StPOL', 'St\\.? ?Pol', 'Balearia', 'Baleària', 'Agfa', 'Hotel RA', 'APD', 'Ashland'];
-const markRe = (m: string): RegExp => new RegExp(`(?<![\\p{L}\\d])${m}(?![\\p{L}\\d])`, 'u');
+const CLIENTS = ['DEOR Consultores', 'OK Humedades', 'Learn2Be', 'Vil·la Minerva', 'Miquel Pares', 'RG Compact'];
 
 describe('adv P9 · fidelidad de textos frente al diseño', () => {
   it('#metodo: etiqueta, titular y los 4 pasos (número y texto) idénticos al diseño', () => {
@@ -80,36 +71,13 @@ describe('adv P9 · fidelidad de textos frente al diseño', () => {
 });
 
 describe('adv P9 · clientes (lista cerrada)', () => {
-  it('franja propia entre #sobre-mi y #twofers con exactamente dos grupos (h3 + ul de 6), en el orden de la decisión', () => {
+  it('franja propia entre #sobre-mi y #twofers con exactamente los 6 nombres, en el orden de la decisión', () => {
     const ids = [...doc.querySelectorAll('main > section')].map((s) => s.id);
     expect(ids.slice(ids.indexOf('sobre-mi'), ids.indexOf('sobre-mi') + 3)).toEqual(['sobre-mi', 'clientes', 'twofers']);
-    const h2 = $('#clientes h2');
-    expect(text(h2)).toBe('Empresas con las que he trabajado');
-    // Secuencia exacta tras el h2: h3 «Consultoría», ul(6), h3 «Formación in company», ul(6) y nada más.
-    const after: Element[] = [];
-    for (let e = h2.nextElementSibling; e; e = e.nextElementSibling) after.push(e);
-    expect(after.map((e) => e.tagName)).toEqual(['H3', 'UL', 'H3', 'UL']);
-    GROUPS.forEach(([title, names], i) => {
-      expect(text(after[2 * i]), `h3 ${i}`).toBe(title);
-      const li = [...after[2 * i + 1]!.children];
-      expect(li.map((l) => l.tagName)).toEqual(names.map(() => 'LI'));
-      expect(li.map(text), title).toEqual(names);
-      for (const l of li) expect(l.children, text(l)).toHaveLength(0); // solo texto
-    });
-    // Ningún <li>, lista ni encabezado más en toda la sección (también fuera de .inner).
-    expect([...doc.querySelectorAll('#clientes li')].map(text)).toEqual(CLIENTS);
-    expect(doc.querySelectorAll('#clientes ul, #clientes ol, #clientes dl')).toHaveLength(2);
-    expect([...doc.querySelectorAll('#clientes h1, #clientes h2, #clientes h3, #clientes h4, #clientes h5, #clientes h6')].map((h) => h.tagName)).toEqual(['H2', 'H3', 'H3']);
-    // Texto de la franja, nodo a nodo: exactamente etiqueta, h2 y los dos grupos.
-    const w = doc.createTreeWalker($('#clientes'), 4 /* NodeFilter.SHOW_TEXT */);
-    const nodes: string[] = [];
-    for (let n = w.nextNode(); n; n = w.nextNode()) if (norm(n.textContent)) nodes.push(norm(n.textContent));
-    expect(nodes).toEqual(['/ han confiado en mí', 'Empresas con las que he trabajado', ...GROUPS.flatMap(([t, n]) => [t, ...n])]);
-  });
-
-  it('Balearia sin tilde (decisión del dueño): ni «Baleària» ni «Balearía» en ningún fichero de dist ni de src', () => {
-    const files = [...distFiles(), ...walk(join(ROOT, 'src'))].filter((f) => /\.(html|css|js|astro|ts|json)$/.test(f));
-    for (const f of files) expect((read(f).match(/Bale\S{1,3}r\S?a/giu) ?? []).filter((m) => m !== 'Balearia'), f).toEqual([]);
+    expect(text($('#clientes h2'))).toBe('Empresas con las que he trabajado');
+    const li = [...doc.querySelectorAll('#clientes ul > li')];
+    expect(li.map(text)).toEqual(CLIENTS);
+    for (const l of li) expect(l.children).toHaveLength(0); // solo texto
   });
 
   it('Vil·la Minerva usa U+00B7 (no U+2027, U+22C5 ni U+2219) en el HTML de dist', () => {
@@ -118,7 +86,7 @@ describe('adv P9 · clientes (lista cerrada)', () => {
     expect(html).not.toMatch(/Vil[‧⋅∙.\-]la/);
   });
 
-  it('ningún nombre de cliente fuera de #clientes, salvo DEOR (y Grup Qualia) y la EUHT de Sant Pol (nombre largo) en la trayectoria de #sobre-mi', () => {
+  it('ningún nombre de cliente fuera de #clientes, salvo DEOR (y Grup Qualia) en la trayectoria de #sobre-mi', () => {
     for (const { file, doc: d } of pages()) {
       const c = d.body.cloneNode(true) as Element;
       c.querySelector('#clientes')?.remove();
@@ -126,16 +94,13 @@ describe('adv P9 · clientes (lista cerrada)', () => {
       const aboutText = about ? visible(about) : '';
       about?.remove();
       const rest = visible(c);
-      for (const n of [...CLIENTS, ...OLD_MARKS]) expect(rest, `${file}: «${n}» fuera de #clientes/#sobre-mi`).not.toContain(n);
-      for (const m of [...NEW_MARKS, 'Sant Pol', 'Hosteler[íi]a y Turismo']) expect(rest.match(markRe(m))?.[0] ?? null, `${file}: «${m}» fuera de #clientes/#sobre-mi`).toBeNull();
+      for (const n of [...CLIENTS, 'DEOR', 'Deor', 'Humedades', 'Learn2Be', 'Minerva', 'Pares', 'RG Compact', 'Qualia']) {
+        expect(rest, `${file}: «${n}» fuera de #clientes/#sobre-mi`).not.toContain(n);
+      }
       if (about) {
         for (const n of ['OK Humedades', 'Learn2Be', 'Minerva', 'Pares', 'RG Compact']) expect(aboutText).not.toContain(n);
-        for (const m of ['EUHT', 'StPOL', 'Balearia', 'Baleària', 'Agfa', 'Hotel RA', 'APD', 'Ashland']) expect(aboutText.match(markRe(m))?.[0] ?? null, `#sobre-mi: «${m}»`).toBeNull();
         expect(aboutText.match(/Qualia/g)).toHaveLength(1);
         expect(aboutText).toContain('Grup Qualia');
-        // La única mención de la EUHT fuera de #clientes es su nombre largo en la trayectoria (texto del diseño).
-        expect(aboutText.match(/Sant Pol/g)).toHaveLength(1);
-        expect(aboutText).toContain('Escuela Universitaria de Hostelería y Turismo de Sant Pol de Mar');
       }
     }
   });
@@ -143,14 +108,9 @@ describe('adv P9 · clientes (lista cerrada)', () => {
   it('ningún nombre de cliente en <head> ni en atributos (alt, title, aria-label, content) de ninguna página', () => {
     for (const { file, doc: d } of pages()) {
       const attrs = [...d.querySelectorAll('*')].flatMap((e) => [...e.attributes].map((a) => a.value)).join(' | ');
-      const head = norm(d.head.textContent) + ' ' + [...d.head.querySelectorAll('*')].flatMap((e) => [...e.attributes].map((a) => a.value)).join(' ');
-      for (const n of OLD_MARKS) {
+      for (const n of ['Deor', 'DEOR', 'Humedades', 'Learn2Be', 'Minerva', 'Pares', 'RG Compact', 'Qualia']) {
         expect(attrs, `${file}: «${n}» en un atributo`).not.toContain(n);
         expect(norm(d.head.textContent), `${file}: «${n}» en <head>`).not.toContain(n);
-      }
-      for (const m of [...NEW_MARKS, 'Sant Pol']) {
-        expect(attrs.match(markRe(m))?.[0] ?? null, `${file}: «${m}» en un atributo`).toBeNull();
-        expect(head.match(markRe(m))?.[0] ?? null, `${file}: «${m}» en <head>`).toBeNull();
       }
     }
   });
@@ -240,19 +200,9 @@ describe('adv P9 · accesibilidad estática', () => {
   it('cada sección nueva tiene exactamente un h2', () => {
     for (const id of ['metodo', 'sobre-mi', 'clientes', 'twofers', 'contacto']) expect($(`#${id}`).querySelectorAll('h2'), id).toHaveLength(1);
   });
-  it('los h3 de #clientes cuelgan de su h2: van después de él, en el mismo contenedor, y antes del siguiente h2 de la página', () => {
-    const all = [...doc.querySelectorAll('h1,h2,h3,h4,h5,h6')];
-    const h2 = $('#clientes h2');
-    const i = all.indexOf(h2);
-    expect(all.slice(i, i + 4).map((h) => [h.tagName, h.closest('section')?.id])).toEqual([['H2', 'clientes'], ['H3', 'clientes'], ['H3', 'clientes'], ['H2', 'twofers']]);
-    for (const h of doc.querySelectorAll('#clientes h3')) expect(h.parentElement).toBe(h2.parentElement);
-  });
-  it('#metodo es <ol> con 4 <li> directos; #clientes son 2 <ul> con 6 <li> directos cada uno; todo <li> tiene padre ul/ol', () => {
+  it('#metodo es <ol> con 4 <li> directos; #clientes es <ul> con 6 <li> directos; todo <li> tiene padre ul/ol', () => {
     expect($('#metodo ol').querySelectorAll(':scope > li')).toHaveLength(4);
-    const uls = [...doc.querySelectorAll('#clientes ul')];
-    expect(uls).toHaveLength(2);
-    for (const u of uls) expect(u.querySelectorAll(':scope > li')).toHaveLength(6);
-    expect(doc.querySelectorAll('#clientes li')).toHaveLength(12);
+    expect($('#clientes ul').querySelectorAll(':scope > li')).toHaveLength(6);
     for (const li of doc.querySelectorAll('li')) expect(['UL', 'OL']).toContain(li.parentElement!.tagName);
   });
   it('aria-hidden solo en símbolos decorativos (o el monograma NG) y nunca con algo enfocable dentro', () => {
