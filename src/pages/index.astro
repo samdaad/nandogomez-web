@@ -75,6 +75,7 @@ const svg = { width: 28, height: 28, viewBox: '0 0 24 24', fill: 'none', stroke:
       <div class="inner">
         <SectionLabel>/ han confiado en mí</SectionLabel>
         <h2 class="mid">Empresas con las que he trabajado</h2>
+        <h3 class="group">Consultoría</h3>
         <ul class="clients">
           <li>DEOR Consultores</li>
           <li>OK Humedades</li>
@@ -82,6 +83,15 @@ const svg = { width: 28, height: 28, viewBox: '0 0 24 24', fill: 'none', stroke:
           <li>Vil·la Minerva</li>
           <li>Miquel Pares</li>
           <li>RG Compact</li>
+        </ul>
+        <h3 class="group">Formación in company</h3>
+        <ul class="clients">
+          <li>EUHT StPOL</li>
+          <li>Balearia</li>
+          <li>Agfa</li>
+          <li>Hotel RA</li>
+          <li>APD</li>
+          <li>Ashland</li>
         </ul>
       </div>
     </section>
@@ -137,6 +147,8 @@ const svg = { width: 28, height: 28, viewBox: '0 0 24 24', fill: 'none', stroke:
   #clientes .inner { padding-block: 72px; }
   .mid { margin: 0 0 var(--space-8); font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
   .clients { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-3) 40px; font-size: 19px; font-weight: 500; color: var(--ink-muted); }
+  .group { margin: var(--space-8) 0 var(--space-3); font-family: var(--font-mono); font-size: 13px; font-weight: 400; letter-spacing: 0.06em; color: var(--ink-muted); }
+  .mid + .group { margin-top: 0; }
   #twofers { padding-bottom: var(--space-28); }
   .twofers { padding: clamp(32px, 5vw, 64px); border: var(--hairline) solid var(--border); border-radius: var(--radius-xl); display: flex; flex-wrap: wrap; gap: 40px 80px; align-items: center; justify-content: space-between; }
   .tf-copy { flex: 1 1 420px; min-width: 0; }
