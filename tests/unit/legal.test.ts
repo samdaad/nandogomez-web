@@ -1,9 +1,13 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import * as legal from '../../src/lib/legal';
 
 describe('legal (pendientes en un solo sitio)', () => {
-  it('la fecha sigue como marcador entre corchetes hasta el día de publicación', () => {
-    expect(legal.LEGAL_UPDATED).toBe('[FECHA DE PUBLICACIÓN]');
+  it('la fecha de publicación está fijada y legal.ts no tiene pendientes entre corchetes', () => {
+    expect(legal.LEGAL_UPDATED).toBe('2 de noviembre de 2026');
+    for (const v of Object.values(legal)) expect(String(v)).not.toMatch(/\[[^\]]*\]/);
+    expect(readFileSync(join(import.meta.dirname, '../../src/lib/legal.ts'), 'utf8')).not.toMatch(/'\[[^\]]*\]'/);
   });
 
   it('ya no exporta REGISTRO_MERCANTIL (decisión de Nando, 29/10/2026)', () => {

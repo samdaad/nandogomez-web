@@ -78,8 +78,10 @@ describe('dist · /aviso-legal (P2a)', () => {
     expect(d.body.textContent ?? '').not.toContain('Denominación social');
   });
 
-  it('la fecha de actualización sigue como pendiente entre corchetes', () => {
-    expect(page!.doc.body.textContent ?? '').toContain('[FECHA DE PUBLICACIÓN]');
+  it('muestra la fecha de publicación fijada y ningún pendiente de fecha', () => {
+    const t = (page!.doc.body.textContent ?? '').replace(/\s+/g, ' ');
+    expect(t).toContain('Última actualización: 2 de noviembre de 2026');
+    expect(page!.html).not.toContain('[FECHA DE PUBLICACIÓN]');
   });
 
   it('enlaza a privacidad y cookies sin .dc.html', () => {

@@ -44,14 +44,22 @@ describe('P2a adv · fidelidad de /aviso-legal frente a design/AvisoLegal.dc.htm
     expect(map['Teléfono']).toBe('+34 603 24 26 82');
   });
 
-  it('no hay fila de Registro Mercantil y la fecha es un pendiente explícito', () => {
+  it('no hay fila de Registro Mercantil y la fecha de publicación está fijada', () => {
     // Decisión de Nando (29/10/2026): el aviso legal no publica los datos del Registro Mercantil.
     const d = aviso!.doc;
     const dts = [...d.querySelectorAll('main dt')].map((dt) => norm(dt.textContent));
     expect(dts.some((t) => /registro|mercantil/i.test(t))).toBe(false);
     expect(aviso!.html).not.toMatch(/Registro\s+Mercantil/i);
     const upd = norm(d.querySelector('main .updated')?.textContent ?? '');
-    expect(upd).toMatch(/^Última actualización: \[[^\]]+\]$/);
+    // Decisión de Nando (02/11/2026): fecha fijada; ningún pendiente entre corchetes en las 3 páginas legales.
+    expect(upd).toBe('Última actualización: 2 de noviembre de 2026');
+    for (const rel of ['aviso-legal.html', 'privacidad.html', 'cookies.html']) {
+      const pg = all.find((p) => p.rel === rel);
+      expect(pg, rel).toBeDefined();
+      expect(norm(pg!.doc.querySelector('main .updated')?.textContent), rel).toBe('Última actualización: 2 de noviembre de 2026');
+      // `_ga_[ID]` depende del GA ID del build (P3, lo vigila check:release), no de lib/legal.ts.
+      expect(pg!.html.replaceAll('_ga_[ID]', ''), rel).not.toMatch(/\[[A-ZÁÉÍÓÚÑ][^\]<]*\]/);
+    }
     // Ninguna fecha ni dato registral con cifras colado en el texto de main.
     const text = norm(d.querySelector('main')?.textContent);
     expect(text).not.toMatch(/\b(tomo|folio|hoja|inscripción)\s*\d/i);

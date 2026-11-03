@@ -58,11 +58,12 @@ describe('P2a adv · canonicalUrl nunca sale de https://nandogomez.com', () => {
 });
 
 describe('P2a adv · datos legales y contacto', () => {
-  it('los pendientes de lib/legal.ts son marcadores entre corchetes, sin cifras inventadas', () => {
+  it('la fecha de publicación está fijada y lib/legal.ts no conserva ningún pendiente entre corchetes', () => {
     // Decisión de Nando (29/10/2026): el aviso legal no publica el Registro Mercantil.
-    // La fecha sigue siendo un pendiente explícito sin cifras mientras no se fije.
-    expect(LEGAL_UPDATED).toMatch(/^\[[^\]]+\]$/);
-    expect(LEGAL_UPDATED).not.toMatch(/\d/);
+    // Decisión de Nando (02/11/2026): fecha de publicación fijada.
+    expect(LEGAL_UPDATED).toBe('2 de noviembre de 2026');
+    for (const [k, v] of Object.entries(legal)) expect(String(v), k).not.toMatch(/[[\]]/);
+    expect(readFileSync(join(ROOT, 'src/lib/legal.ts'), 'utf8')).not.toMatch(/\[[^\]\n]*\]/);
   });
 
   it('lib/legal.ts no exporta REGISTRO_MERCANTIL ni otro dato registral', () => {

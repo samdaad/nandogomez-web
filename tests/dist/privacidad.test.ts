@@ -65,11 +65,12 @@ describe('dist · /privacidad (P2b)', () => {
     expect(page!.html).not.toMatch(/\.dc\.html/);
   });
 
-  it('resumen, proveedores y fecha pendiente visibles', () => {
+  it('resumen, proveedores y fecha de publicación visibles', () => {
     const d = page!.doc;
     const text = d.body.textContent ?? '';
     expect(text).toContain('En resumen: solo tratamos los datos');
-    expect(text).toContain('[FECHA DE PUBLICACIÓN]');
+    expect(text.replace(/\s+/g, ' ')).toContain('Última actualización: 2 de noviembre de 2026');
+    expect(page!.html).not.toContain('[FECHA DE PUBLICACIÓN]');
     const li = [...d.querySelectorAll('main ul > li')].map((l) => l.textContent ?? '');
     expect(li).toHaveLength(2);
     expect(li[0]).toContain('Cloudflare, Inc.');
